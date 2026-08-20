@@ -20,6 +20,7 @@ function AppRoutes() {
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/collection" component={Catalogue} />
+      <Route path="/category/:slug" component={Catalogue} />
       <Route path="/products/:slug" component={ProductDetail} />
       <Route path="/cart" component={Cart} />
       <Route path="/track" component={Track} />
