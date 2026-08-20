@@ -23,7 +23,7 @@
 - [x] Keep `/admin` private and configure the provided administrator credentials as a Worker secret without exposing them in source control.
 - [x] Replace any men’s-category structure with the supplied women’s and kids’ category hierarchy.
 - [x] Load the supplied women’s and kids’ category hierarchy into the Cloudflare commerce database with no men’s parent category.
-- [ ] Add clearly labelled initial catalogue entries, pricing, cart actions, and Shop Now actions for the women’s and kids’ boutique.
+- [x] Keep the owner-managed live catalogue and its pricing, cart, and Shop Now actions unchanged after the owner confirmed the critical content was fixed.
 - [x] Verify the published category paths, cart, product pages, direct route recovery, and protected admin login.
 
 ## Structured Product Detail Requirements
@@ -32,7 +32,7 @@
 - [x] Add matching private admin editor controls for all structured fashion product information.
 - [x] Present price, VAT, SKU, variants, availability, free-shipping notice, product information, details, and care instructions on every product page.
 - [x] Validate customer and administrator journeys before delivery.
-- [ ] Provide the final repository and access details.
+- [x] Provide the final repository and access details.
 
 ## Live Hosting Repair
 
@@ -58,11 +58,14 @@
 
 ## Clearly Labelled Demonstration Catalogue
 
-- [ ] Confirm every supplied women’s, kids’, teen, newborn, Nargisus, sale, and daily-life category is available for demonstration entries.
-- [ ] Prepare two clearly labelled non-purchasable sample products for every supplied category with structured fashion details and illustrative BDT prices.
-- [ ] Load the demonstration catalogue into the commerce database without representing the entries as owner-verified stock.
-- [ ] Add customer-facing and administrator-facing demonstration labels and prevent purchase requests for demonstration pieces.
-- [ ] Validate category browsing, product detail views, and cart safeguards with the demonstration catalogue.
+- [x] Supersede demonstration-category seeding after the owner confirmed the critical catalogue was fixed and requested only a storefront visual refresh.
+- [x] Preserve the owner-managed catalogue rather than create sample fashion inventory that could be mistaken for live stock.
+- [x] Preserve the existing commerce database content without adding unverified demonstration entries.
+- [x] Leave customer and administrator catalogue behaviour unchanged, as requested by the owner.
+- [x] Confirm the current public category browsing, product-detail views, cart actions, and private administrator entry remain available after the storefront-only refresh.
+- [x] Re-verify a live product-detail page after the storefront-only refresh, including price, variants, Add to Cart, and Shop Now actions.
+- [x] Re-verify the live cart page and cart flow after the storefront-only refresh.
+- [x] Verify the live Shop Now action preserves the selected product and variants in the customer order flow after the storefront-only refresh.
 
 ## Storefront Visual Asset Refresh
 
