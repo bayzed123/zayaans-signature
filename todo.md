@@ -129,11 +129,11 @@
 - [x] Task 04b — Add protected product brand, promotional placement, and validated multi-image gallery management without accepting non-project-owned media sources.
 - [x] Task 04c — Add a guarded administrator product-deletion flow that protects products referenced by orders and requires explicit confirmation before destructive action.
 - [x] Task 04d — Add focused server and rendered-admin regression coverage, then verify product editing and deletion safeguards on desktop and mobile before publishing.
-- [ ] Task 05 — Extend category management with subcategory hierarchy, category status, edit/delete safeguards, and explicit ordering controls.
+- [x] Task 05 — Extend category management with subcategory hierarchy, category status, edit/delete safeguards, and explicit ordering controls.
 - [x] Task 05a — Audit the category schema, existing hierarchy metadata, protected Worker category routes, and private category interface.
-- [ ] Task 05b — Add a category lifecycle status field and protected full category editing for hierarchy, audience, description, ordering, and status.
-- [ ] Task 05c — Add guarded category deletion that protects categories referenced by products, with explicit private-admin confirmation.
-- [ ] Task 05d — Add focused server and rendered-admin regression coverage, then verify responsive desktop and mobile category management before publishing.
+- [x] Task 05b — Add a category lifecycle status field and protected full category editing for hierarchy, audience, description, ordering, and status.
+- [x] Task 05c — Add guarded category deletion that protects categories referenced by products, with explicit private-admin confirmation.
+- [x] Task 05d — Add focused server and rendered-admin regression coverage, then verify responsive desktop and mobile category management before publishing.
 - [ ] Task 06 — Upgrade the product-detail experience with an accessible image gallery and zoom, discount presentation, stock state, related-product discovery, share support, and only legitimate review handling.
 - [ ] Task 07 — Add server-backed catalogue search, filtering, and sorting for product name, SKU, category, brand, availability, price, promotion, and stock-aware results.
 - [ ] Task 08 — Validate and improve cart and checkout totals, delivery information, payment method display, and stock-aware quantity rules.
