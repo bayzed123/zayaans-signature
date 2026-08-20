@@ -26,8 +26,6 @@ jobs:
           enablement: true
       - name: Set up pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: 10
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
@@ -60,7 +58,6 @@ jobs:
   deploy-backend:
     needs: validate-and-build
     runs-on: ubuntu-latest
-    if: ${{ vars.ENABLE_CLOUDFLARE_DEPLOY == 'true' }}
     steps:
       - name: Check out source
         uses: actions/checkout@v4
@@ -68,6 +65,5 @@ jobs:
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           workingDirectory: cloudflare
           command: deploy
