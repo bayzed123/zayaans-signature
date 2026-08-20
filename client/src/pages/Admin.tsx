@@ -2,7 +2,7 @@ import { SiteLink as Link } from "@/components/SiteLink";
 import { categoryImage } from "@/lib/categoryAssets";
 import { API_BASE, commerceRequest, formatBdt, productImage, type Category, type Product } from "@/lib/commerce";
 import { BrandedLoading, LOADING_COPY } from "@/components/BrandedLoading";
-import { BarChart3, Boxes, ChevronRight, ClipboardList, Link2, LockKeyhole, PackagePlus, PencilLine, Plus, RefreshCw, Tags, Truck, X } from "lucide-react";
+import { BarChart3, Boxes, ChevronRight, ClipboardList, Link2, LockKeyhole, PackagePlus, PencilLine, Plus, RefreshCw, Tags, Trash2, Truck, X } from "lucide-react";
 import { FormEvent, useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -45,6 +45,7 @@ export default function Admin() {
   const [form, setForm] = useState<ProductForm>(blankProduct);
   const [categoryName, setCategoryName] = useState("");
   const [courierAction, setCourierAction] = useState<string | null>(null);
+  const [productGovernanceAction, setProductGovernanceAction] = useState<string | null>(null);
 
   const refresh = async (activeToken = token) => {
     if (!activeToken) return;
@@ -100,6 +101,24 @@ export default function Admin() {
     } catch (error) { toast("We could not save this piece.", { description: error instanceof Error ? error.message : "Review the form and try again." }); }
   }
 
+  async function saveProductMerchandising(product: Product, values: Pick<Product, "brand" | "isNewArrival" | "isOffer" | "isBestSeller">) {
+    setProductGovernanceAction(`save-${product.id}`);
+    try {
+      await adminRequest(`/api/admin/products/${product.id}`, token, { method: "PATCH", body: JSON.stringify(values) });
+      toast("Product merchandising updated."); await refresh();
+    } catch (error) { toast("We could not update this product.", { description: error instanceof Error ? error.message : "Try again." }); }
+    finally { setProductGovernanceAction(null); }
+  }
+
+  async function deleteProduct(product: Product) {
+    setProductGovernanceAction(`delete-${product.id}`);
+    try {
+      await adminRequest(`/api/admin/products/${product.id}`, token, { method: "DELETE" });
+      toast("Product deleted from the catalogue."); closeProductEditor(); await refresh();
+    } catch (error) { toast("We could not delete this product.", { description: error instanceof Error ? error.message : "Archive it instead if it has order history." }); }
+    finally { setProductGovernanceAction(null); }
+  }
+
   async function createCategory(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     try { await adminRequest("/api/admin/categories", token, { method: "POST", body: JSON.stringify({ name: categoryName }) }); setCategoryName(""); toast("Category created."); await refresh(); }
@@ -149,7 +168,7 @@ export default function Admin() {
     <main className="min-w-0 flex-1 px-5 py-6 pb-28 sm:px-8 lg:px-12 md:pb-7"><header className="flex flex-wrap items-end justify-between gap-5 border-b border-black/12 pb-6"><div><p className="section-kicker">Atelier operations</p><h1 className="mt-3 font-display text-5xl">{activeTab?.label}</h1></div><div className="flex items-center gap-4"><Link href="/" className="font-ui text-[10px] font-bold uppercase tracking-[.15em] text-black/53 hover:text-[#8f6b2c]">View boutique</Link><button onClick={() => void refresh()} className="min-h-11 border border-black/15 px-3 py-2 font-ui text-[10px] font-bold uppercase tracking-[.14em] hover:border-[#8f6b2c]">Refresh</button></div></header>
       {loading && <BrandedLoading size="compact" label={LOADING_COPY.admin} className="mt-6 justify-start border-0 bg-transparent px-0" />}
       {tab === "overview" && <OverviewPanel overview={overview} openProductEditor={() => openProductEditor()} />}
-      {tab === "products" && <ProductPanel form={form} setForm={setForm} categories={categories} products={products} editingId={editingId} editorOpen={productEditorOpen} openEditor={openProductEditor} closeEditor={closeProductEditor} save={saveProduct} />}
+      {tab === "products" && <><ProductPanel form={form} setForm={setForm} categories={categories} products={products} editingId={editingId} editorOpen={productEditorOpen} openEditor={openProductEditor} closeEditor={closeProductEditor} save={saveProduct} /><ProductGovernancePanel products={products} save={saveProductMerchandising} remove={deleteProduct} action={productGovernanceAction} /></>}
       {tab === "categories" && <CategoryPanel categories={categories} name={categoryName} setName={setCategoryName} create={createCategory} saveImage={updateCategoryImage} />}
       {tab === "orders" && <OrderPanel orders={orders} updateOrder={updateOrder} createCourierConsignment={createCourierConsignment} refreshCourierStatus={refreshCourierStatus} courierAction={courierAction} />}
     </main>
@@ -198,3 +217,22 @@ function Input({ label, value, onChange, type = "text", required = false, dark =
 function Select({ label, value, onChange, options }: { label: string; value: string; onChange: (value: string) => void; options: Array<{ value: string; label: string }> }) { return <label className="mt-5 block font-ui text-[10px] font-bold uppercase tracking-[.14em]">{label}<select value={value} onChange={(event) => onChange(event.target.value)} className="mt-2 min-h-12 w-full border border-black/16 bg-white/60 px-3 py-2.5 text-sm outline-none focus:border-[#8f6b2c]">{options.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label>; }
 function TextArea({ label, value, onChange, rows }: { label: string; value: string; onChange: (value: string) => void; rows: number }) { return <label className="mt-5 block font-ui text-[10px] font-bold uppercase tracking-[.14em]">{label}<textarea rows={rows} value={value} onChange={(event) => onChange(event.target.value)} className="mt-2 w-full border border-black/16 bg-white/60 px-3 py-2.5 text-sm outline-none focus:border-[#8f6b2c]" /></label>; }
 function Toggle({ label, checked, onChange }: { label: string; checked: boolean; onChange: (value: boolean) => void }) { return <label className="mt-5 flex min-h-12 items-center gap-3 border border-black/16 bg-white/60 px-3 font-ui text-[10px] font-bold uppercase tracking-[.12em]"><input type="checkbox" checked={checked} onChange={(event) => onChange(event.target.checked)} className="h-4 w-4 accent-[#8f6b2c]" /> {label}</label>; }
+
+export function ProductGovernancePanel({ products, save, remove, action }: { products: Product[]; save: (product: Product, values: Pick<Product, "brand" | "isNewArrival" | "isOffer" | "isBestSeller">) => void; remove: (product: Product) => void; action: string | null }) {
+  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const selected = products.find((product) => product.id === selectedId) ?? products[0] ?? null;
+  const [brand, setBrand] = useState("");
+  const [isNewArrival, setIsNewArrival] = useState(false);
+  const [isOffer, setIsOffer] = useState(false);
+  const [isBestSeller, setIsBestSeller] = useState(false);
+
+  useEffect(() => {
+    if (!selected) return;
+    setSelectedId(selected.id); setBrand(selected.brand); setIsNewArrival(selected.isNewArrival); setIsOffer(selected.isOffer); setIsBestSeller(selected.isBestSeller);
+  }, [selected?.id, selected?.brand, selected?.isNewArrival, selected?.isOffer, selected?.isBestSeller]);
+
+  if (!selected) return null;
+  const saving = action === `save-${selected.id}`;
+  const deleting = action === `delete-${selected.id}`;
+  return <section className="mt-8 border border-[#8f6b2c]/35 bg-[#f8f4ed] p-5 sm:p-7"><p className="font-ui text-[9px] font-bold uppercase tracking-[.19em] text-[#8f6b2c]">Merchandising &amp; lifecycle</p><div className="mt-2 flex flex-wrap items-end justify-between gap-4"><div><h2 className="font-display text-4xl">Placement controls</h2><p className="mt-2 max-w-2xl font-ui text-xs leading-5 text-black/55">Set a product&apos;s brand or line and genuine discovery placements. Gallery images are stored with the product editor; only project-owned catalogue URLs are accepted by the protected API.</p></div><span className="font-ui text-[9px] font-bold uppercase tracking-[.14em] text-black/45">{products.length} products</span></div><div className="mt-6 grid gap-4 lg:grid-cols-[.8fr_1.2fr]"><Select label="Product to manage" value={String(selected.id)} onChange={(value) => setSelectedId(Number(value))} options={products.map((product) => ({ value: String(product.id), label: `${product.name} (${product.sku})` }))} /><div className="grid gap-4 sm:grid-cols-2"><Input label="Brand / line" value={brand} onChange={setBrand} /><Toggle label="Mark as new arrival" checked={isNewArrival} onChange={setIsNewArrival} /><Toggle label="Include in offers" checked={isOffer} onChange={setIsOffer} /><Toggle label="Mark as best seller" checked={isBestSeller} onChange={setIsBestSeller} /></div></div><div className="mt-6 grid gap-3 sm:grid-cols-2"><button type="button" disabled={saving || deleting} onClick={() => save(selected, { brand, isNewArrival, isOffer, isBestSeller })} className="gold-button min-h-12 w-full justify-center disabled:cursor-not-allowed disabled:opacity-55">{saving ? "Saving placement" : "Save merchandising"}</button><button type="button" disabled={saving || deleting} onClick={() => { if (window.confirm(`Delete “${selected.name}”? This cannot be undone. Products used by an order are protected and must be archived instead.`)) remove(selected); }} className="inline-flex min-h-12 items-center justify-center gap-2 border border-red-900/45 px-4 font-ui text-[10px] font-bold uppercase tracking-[.14em] text-red-900 hover:bg-red-900 hover:text-white disabled:cursor-not-allowed disabled:opacity-55"><Trash2 size={16} /> {deleting ? "Deleting product" : "Delete product"}</button></div><p className="mt-4 font-ui text-[10px] leading-5 text-black/50">Deletion is permanently blocked when a product appears in an order. Use the existing editor&apos;s <strong>Archived</strong> visibility status to remove ordered products from public browsing.</p></section>;
+}

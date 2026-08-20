@@ -38,6 +38,10 @@ export type Product = {
   washCare: string;
   availabilityNote: string;
   tryOnEnabled: boolean;
+  brand: string;
+  isNewArrival: boolean;
+  isOffer: boolean;
+  isBestSeller: boolean;
   stock: number;
   status: "draft" | "active" | "archived";
   featured: boolean;

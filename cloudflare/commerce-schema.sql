@@ -27,6 +27,10 @@ CREATE TABLE IF NOT EXISTS products (
   colours_json TEXT NOT NULL DEFAULT '[]',
   image_url TEXT NOT NULL DEFAULT '',
   gallery_json TEXT NOT NULL DEFAULT '[]',
+  brand TEXT NOT NULL DEFAULT '',
+  is_new_arrival INTEGER NOT NULL DEFAULT 0 CHECK (is_new_arrival IN (0,1)),
+  is_offer INTEGER NOT NULL DEFAULT 0 CHECK (is_offer IN (0,1)),
+  is_best_seller INTEGER NOT NULL DEFAULT 0 CHECK (is_best_seller IN (0,1)),
   price_minor INTEGER NOT NULL CHECK (price_minor >= 0),
   compare_at_minor INTEGER NOT NULL DEFAULT 0 CHECK (compare_at_minor >= 0),
   stock INTEGER NOT NULL DEFAULT 0 CHECK (stock >= 0),
@@ -39,6 +43,8 @@ CREATE TABLE IF NOT EXISTS products (
 CREATE INDEX IF NOT EXISTS idx_products_category ON products(category_id);
 CREATE INDEX IF NOT EXISTS idx_products_status ON products(status);
 CREATE INDEX IF NOT EXISTS idx_products_featured ON products(featured);
+CREATE INDEX IF NOT EXISTS idx_products_brand ON products(brand);
+CREATE INDEX IF NOT EXISTS idx_products_promotions ON products(is_new_arrival, is_offer, is_best_seller);
 
 CREATE TABLE IF NOT EXISTS orders (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
