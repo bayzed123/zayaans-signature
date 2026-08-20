@@ -2,6 +2,7 @@ name = "zayaans-signature-api"
 main = "worker.ts"
 compatibility_date = "2025-09-01"
 account_id = "0b1d4447f765e7fd26243f6a462d728a"
+workers_dev = true
 
 [vars]
 ALLOWED_ORIGIN = "https://bayzed123.github.io"
