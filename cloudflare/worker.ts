@@ -392,16 +392,18 @@ async function adminRoute(request: Request, env: Env, url: URL): Promise<Respons
   }
   const inventoryMatch = url.pathname.match(/^\/api\/admin\/products\/(\d+)\/inventory$/);
   if (inventoryMatch && request.method === "POST") {
-    const id = Number(inventoryMatch[1]); const body = await readPayload(request); const delta = Number(body?.quantityDelta); const reason = clean(body?.reason, 80); const note = clean(body?.note, 500);
+    const id = Number(inventoryMatch[1]); const body = await readPayload(request); const delta = Number(body?.quantityDelta); const reason = clean(body?.reason, 80); const note = clean(body?.note, 500); const threshold = Number(body?.lowStockThreshold);
     if (!Number.isInteger(delta) || delta === 0 || Math.abs(delta) > 100000 || !reason) return json({ error: "Provide a non-zero whole-unit adjustment and reason" }, 422, request, env);
+    if (Number.isFinite(threshold) && (!Number.isInteger(threshold) || threshold < 0 || threshold > 100000)) return json({ error: "Low-stock threshold is invalid" }, 422, request, env);
     const product = await env.COMMERCE.prepare("SELECT id, stock, low_stock_threshold FROM products WHERE id = ?").bind(id).first<{ id: number; stock: number; low_stock_threshold: number }>();
     if (!product) return json({ error: "Product not found" }, 404, request, env);
     const resulting = product.stock + delta; if (resulting < 0) return json({ error: "This adjustment would make stock negative" }, 422, request, env);
+    const nextThreshold = Number.isFinite(threshold) ? threshold : product.low_stock_threshold;
     await env.COMMERCE.batch([
-      env.COMMERCE.prepare("UPDATE products SET stock = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?").bind(resulting, id),
+      env.COMMERCE.prepare("UPDATE products SET stock = ?, low_stock_threshold = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?").bind(resulting, nextThreshold, id),
       env.COMMERCE.prepare("INSERT INTO inventory_adjustments (product_id, previous_stock, quantity_delta, resulting_stock, reason, note) VALUES (?, ?, ?, ?, ?, ?)").bind(id, product.stock, delta, resulting, reason, note),
     ]);
-    return json({ id, previousStock: product.stock, quantityDelta: delta, resultingStock: resulting }, 200, request, env);
+    return json({ id, previousStock: product.stock, quantityDelta: delta, resultingStock: resulting, lowStockThreshold: nextThreshold }, 200, request, env);
   }
   if (url.pathname === "/api/admin/products" && request.method === "POST") {
     const body = await readPayload(request); if (!body) return json({ error: "Invalid product payload" }, 400, request, env);
