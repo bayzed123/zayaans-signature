@@ -5,6 +5,7 @@
 import { ArrowDown, ArrowUpRight, Facebook, Instagram, Mail, MessageCircle, Sparkles } from "lucide-react";
 import { FormEvent, useState } from "react";
 import { toast } from "sonner";
+import { Link } from "wouter";
 import FashionHeader from "@/components/FashionHeader";
 import FeaturedCollection from "@/components/FeaturedCollection";
 
@@ -64,7 +65,7 @@ export default function Home() {
                 Modern occasionwear with a quiet command of craft. Every Zayaan’s Signature piece begins with an individual point of view.
               </p>
               <div className="reveal reveal-4 mt-10 flex flex-wrap gap-3">
-                <a href="/collection" className="gold-button">Shop the collection <ArrowDown size={15} strokeWidth={1.7} /></a>
+                <Link href="/collection" className="gold-button">Shop the collection <ArrowDown size={15} strokeWidth={1.7} /></Link>
                 <a href={productEnquiry("a custom signature piece")} target="_blank" rel="noreferrer" className="ghost-button"><MessageCircle size={16} strokeWidth={1.7} /> Begin an enquiry</a>
               </div>
             </div>

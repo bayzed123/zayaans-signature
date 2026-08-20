@@ -33,3 +33,9 @@
 - [x] Present price, VAT, SKU, variants, availability, free-shipping notice, product information, details, and care instructions on every product page.
 - [x] Validate customer and administrator journeys before delivery.
 - [ ] Provide the final repository and access details.
+
+## Live Hosting Repair
+
+- [ ] Inspect the user-updated GitHub Pages build and project URL 404 regression.
+- [ ] Repair the GitHub Pages root project URL while preserving the user’s repository changes.
+- [ ] Verify the live storefront root and direct application routes after the repair.
