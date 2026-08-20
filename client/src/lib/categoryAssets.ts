@@ -6,11 +6,11 @@ export type CategoryImageTarget = {
 
 /** Managed fallback imagery ensures new or uncustomised categories never render blank. */
 export const CATEGORY_IMAGE_ASSETS = {
-  womensWardrobe: "/manus-storage/zayaan-womens-wardrobe_cb22933f.jpg",
-  kidsFamily: "/manus-storage/zayaan-kids-family_eb64d436.jpg",
-  teensNewborn: "/manus-storage/zayaan-teens-newborn_d9fc51e4.jpg",
-  nargisusEthnic: "/manus-storage/zayaan-nargisus-ethnic_7f090e95.jpg",
-  dailyLife: "/manus-storage/zayaan-daily-life_b89d6744.jpg",
+  womensWardrobe: "https://raw.githubusercontent.com/bayzed123/Fashion-Design-Architecture-/main/public/product-1.jpg",
+  kidsFamily: "https://raw.githubusercontent.com/bayzed123/Fashion-Design-Architecture-/main/public/product-2.jpg",
+  teensNewborn: "https://raw.githubusercontent.com/bayzed123/Fashion-Design-Architecture-/main/public/product-3.jpg",
+  nargisusEthnic: "https://raw.githubusercontent.com/bayzed123/Fashion-Design-Architecture-/main/public/product-4.jpg",
+  dailyLife: "https://raw.githubusercontent.com/bayzed123/Fashion-Design-Architecture-/main/public/product-5.jpg",
 } as const;
 
 export function categoryImage(target: CategoryImageTarget): string {

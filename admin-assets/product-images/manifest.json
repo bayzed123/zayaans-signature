@@ -3,11 +3,11 @@
   "status": "catalogue-preview",
   "notice": "These entries are illustrative storefront preview content. Replace all preview imagery, prices, stock and product information with owner-approved merchandise before final retail use.",
   "assets": {
-    "womensWardrobe": "/manus-storage/zayaan-womens-wardrobe_cb22933f.jpg",
-    "kidsFamily": "/manus-storage/zayaan-kids-family_eb64d436.jpg",
-    "teensNewborn": "/manus-storage/zayaan-teens-newborn_d9fc51e4.jpg",
-    "nargisusEthnic": "/manus-storage/zayaan-nargisus-ethnic_7f090e95.jpg",
-    "dailyLife": "/manus-storage/zayaan-daily-life_b89d6744.jpg"
+    "womensWardrobe": "https://raw.githubusercontent.com/bayzed123/Fashion-Design-Architecture-/main/public/product-1.jpg",
+    "kidsFamily": "https://raw.githubusercontent.com/bayzed123/Fashion-Design-Architecture-/main/public/product-2.jpg",
+    "teensNewborn": "https://raw.githubusercontent.com/bayzed123/Fashion-Design-Architecture-/main/public/product-3.jpg",
+    "nargisusEthnic": "https://raw.githubusercontent.com/bayzed123/Fashion-Design-Architecture-/main/public/product-4.jpg",
+    "dailyLife": "https://raw.githubusercontent.com/bayzed123/Fashion-Design-Architecture-/main/public/product-5.jpg"
   },
   "previewSkus": ["ZS-PRE-WE-001", "ZS-PRE-WA-002", "ZS-PRE-WA-003", "ZS-PRE-KB-001", "ZS-PRE-KG-002", "ZS-PRE-TG-001", "ZS-PRE-NB-001", "ZS-PRE-NG-001", "ZS-PRE-DL-001", "ZS-PRE-MM-001"]
 }

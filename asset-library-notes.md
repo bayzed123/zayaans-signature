@@ -1,0 +1,5 @@
+# Asset Library Validation Notes
+
+- The first live collection check after the category-image release confirmed that the complete category hierarchy loaded, but the reserved generated-image placeholders did not resolve through GitHub Pages when used as direct `/manus-storage/` URLs.
+- The managed category and preview-product records were therefore switched to direct, stable raw GitHub URLs from the user-selected `Fashion-Design-Architecture-` reference repository. The image mappings remain documented in `admin-assets/` and are editable through the private image-URL workflow.
+- The live commerce API subsequently returned the complete catalogue successfully, including 102 category image URLs, and returned the correct GitHub Pages CORS header. The browser’s first refresh remained in its loading state while the large catalogue response was being processed, so the next validation pass will confirm the rendered image cards after the production build referencing the stable sources is deployed.
