@@ -71,4 +71,4 @@
 - [x] Apply the selected logo and storefront product-image presentation without modifying the administrator system.
 - [x] Verify the public storefront visuals and the unchanged administrator entry after deployment.
 - [x] Retain the crisp brand-owned SVG monogram rather than expose an unfinished generated logo concept in the customer-facing header.
-- [ ] Publish the corrected visible monogram and verify the live homepage, collection, and private administrator entry.
+- [x] Publish the corrected visible monogram and verify the live homepage, collection, and private administrator entry.
