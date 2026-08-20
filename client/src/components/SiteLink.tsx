@@ -2,9 +2,9 @@ import type { AnchorHTMLAttributes, ReactNode } from "react";
 
 /** GitHub project sites need their repository path on every navigable URL. */
 export function sitePath(path: string): string {
-  const base = import.meta.env.BASE_URL.replace(/\/$/, "");
   const suffix = path.startsWith("/") ? path : `/${path}`;
-  return `${base}${suffix}`;
+  const isGitHubProjectSite = typeof window !== "undefined" && window.location.hostname === "bayzed123.github.io";
+  return isGitHubProjectSite ? `/zayaans-signature${suffix}` : suffix;
 }
 
 export function SiteLink({ href, children, ...props }: AnchorHTMLAttributes<HTMLAnchorElement> & { href: string; children: ReactNode }) {
