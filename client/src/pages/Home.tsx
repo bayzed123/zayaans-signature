@@ -8,9 +8,10 @@ import { toast } from "sonner";
 import FashionHeader from "@/components/FashionHeader";
 
 const appBase = import.meta.env.BASE_URL;
-const heroImage = `${appBase}images/zayaans-hero.jpg`;
-const collectionImage = `${appBase}images/zayaans-collection-01.jpg`;
-const lookbookImage = `${appBase}images/zayaans-lookbook-01.jpg`;
+const campaignAssetBase = "https://raw.githubusercontent.com/bayzed123/zayaans-signature/main/client/public/images/";
+const heroImage = `${campaignAssetBase}zayaans-hero.jpg`;
+const collectionImage = `${campaignAssetBase}zayaans-collection-01.jpg`;
+const lookbookImage = `${campaignAssetBase}zayaans-lookbook-01.jpg`;
 const whatsapp = "https://wa.me/8801750858257";
 const facebook = "https://www.facebook.com/share/1DbpHnT9DS/?mibextid=wwXIfr";
 

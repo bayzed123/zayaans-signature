@@ -7,6 +7,7 @@ import { useState } from "react";
 
 const whatsappUrl = "https://wa.me/8801750858257?text=Hello%20Zayaan%27s%20Signature%2C%20I%20would%20like%20to%20enquire%20about%20a%20signature%20piece.";
 const appBase = import.meta.env.BASE_URL;
+const campaignAssetBase = "https://raw.githubusercontent.com/bayzed123/zayaans-signature/main/client/public/images/";
 
 const navItems = [
   { label: "Collection", href: "#collection" },
@@ -22,7 +23,7 @@ export default function FashionHeader() {
       <div className="mx-auto flex h-[76px] max-w-[1440px] items-center justify-between px-5 sm:px-8 lg:px-12">
         <a href="#top" className="group flex items-center gap-3" aria-label="Zayaan's Signature home">
           <img
-            src={`${appBase}images/zayaans-monogram.png`}
+            src={`${campaignAssetBase}zayaans-monogram.png`}
             alt="Zayaan's Signature monogram"
             className="h-11 w-11 object-contain transition-transform duration-300 group-hover:scale-105"
           />
