@@ -78,8 +78,10 @@
 
 ## Repository Asset Library and Catalogue Images
 
-- [ ] Inspect the live commerce categories, products, image fields, and existing deployment workflow before extending asset management.
-- [ ] Create a GitHub-tracked `admin-assets` directory with a documented product/category image manifest that maps durable hosted image URLs to the store catalogue.
-- [ ] Provide a non-blank managed image reference for every existing category and clearly labelled demonstration products where catalogue coverage is needed.
-- [ ] Extend the administrator’s existing image-URL workflow with clear asset-library guidance without changing authentication or order-management behaviour.
-- [ ] Verify the public category imagery, product images, administrator image field, and GitHub Actions deployment after publication.
+- [x] Inspect the live commerce categories, products, image fields, and existing deployment workflow before extending asset management.
+- [x] Create a GitHub-tracked `admin-assets` directory with a documented product/category image manifest that maps durable hosted image URLs to the store catalogue.
+- [x] Provide a non-blank managed image reference for every existing category and clearly labelled demonstration products where catalogue coverage is needed.
+- [x] Extend the administrator’s existing image-URL workflow with clear asset-library guidance without changing authentication or order-management behaviour.
+- [x] Verify the public category imagery, product images, administrator image field, and GitHub Actions deployment after publication.
+- [x] Verify the live collection renders non-blank category cards and product images after the stable image-source release.
+- [x] Verify the deployed private administrator dashboard exposes the product image URL guidance and category image save controls.
