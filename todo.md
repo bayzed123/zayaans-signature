@@ -139,11 +139,11 @@
 - [x] Task 06b — Add an accessible project-owned product image gallery, zoom dialog, transparent discount and stock presentation, and share support without fabricating reviews.
 - [x] Task 06c — Add related-product discovery using only active products in the same assigned category and make sold-out states unavailable for purchase.
 - [x] Task 06d — Add focused customer-flow regression coverage, then verify product-detail behavior on desktop and mobile before publishing.
-- [ ] Task 07 — Add server-backed catalogue search, filtering, and sorting for product name, SKU, category, brand, availability, price, promotion, and stock-aware results.
+- [x] Task 07 — Add server-backed catalogue search, filtering, and sorting for product name, SKU, category, brand, availability, price, promotion, and stock-aware results.
 - [x] Task 07a — Audit current catalogue queries, client filtering, route parameters, and public product-query constraints.
-- [ ] Task 07b — Add validated server-backed search, availability, promotion, brand, price, and sort query parameters without exposing archived products or private data.
-- [ ] Task 07c — Build responsive customer catalogue controls with truthful result counts, removable filters, and an honest empty state.
-- [ ] Task 07d — Add focused request and rendered-catalogue regression coverage, then verify desktop and mobile search workflows before publishing.
+- [x] Task 07b — Add validated server-backed search, availability, promotion, brand, price, and sort query parameters without exposing archived products or private data.
+- [x] Task 07c — Build responsive customer catalogue controls with truthful result counts, removable filters, and an honest empty state.
+- [x] Task 07d — Add focused request and rendered-catalogue regression coverage, then verify desktop and mobile search workflows before publishing.
 - [ ] Task 08 — Validate and improve cart and checkout totals, delivery information, payment method display, and stock-aware quantity rules.
 - [ ] Task 09 — Implement inventory lifecycle management: available and sold quantities, low-stock/out-of-stock alerts, adjustment history, and stock reporting.
 - [ ] Task 10 — Expand order lifecycle management with clear processing, courier, delivery, cancellation, return, failed-delivery, and refund statuses plus a durable order timeline.
