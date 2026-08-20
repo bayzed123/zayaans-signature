@@ -1,0 +1,11 @@
+name = "zayaans-signature-api"
+main = "worker.ts"
+compatibility_date = "2025-09-01"
+
+[vars]
+ALLOWED_ORIGIN = "https://bayzed123.github.io"
+
+[[d1_databases]]
+binding = "NEWSLETTER"
+database_name = "zayaans-signature-newsletter"
+database_id = "ad1c0c18-5711-4ede-b15e-be289963875d"

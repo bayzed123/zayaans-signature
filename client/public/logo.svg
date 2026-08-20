@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" role="img" aria-labelledby="title desc">
+  <title id="title">Zayaan's Signature monogram</title>
+  <desc id="desc">An abstract gold monogram inspired by a needle, thread, and tailored lapel.</desc>
+  <defs>
+    <linearGradient id="gold" x1="22" y1="20" x2="142" y2="142" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#D9BC78"/>
+      <stop offset=".47" stop-color="#B8924C"/>
+      <stop offset="1" stop-color="#72531F"/>
+    </linearGradient>
+  </defs>
+  <path fill="none" stroke="url(#gold)" stroke-linecap="round" stroke-linejoin="round" stroke-width="8" d="M33 34h92L43 119h88M45 35c35-14 75 1 72 34-2 30-49 32-63 55-8 14 9 23 33 20 17-2 30-10 40-22"/>
+  <path fill="url(#gold)" d="M40 27 54 41 34 47z"/>
+</svg>

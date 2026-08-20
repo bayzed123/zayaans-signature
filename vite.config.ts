@@ -206,6 +206,8 @@ function vitePluginStorageProxy(): Plugin {
 const plugins = [react(), tailwindcss(), jsxLocPlugin(), vitePluginManusRuntime(), vitePluginManusDebugCollector(), vitePluginStorageProxy()];
 
 export default defineConfig({
+  // GitHub Pages serves this project under /zayaans-signature/ while local development uses root.
+  base: process.env.GITHUB_ACTIONS ? "/zayaans-signature/" : "/",
   plugins,
   resolve: {
     alias: {

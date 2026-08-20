@@ -1,13 +1,14 @@
+/**
+ * Style contract: couture editorial visual system using obsidian, parchment, Antique Gold #B8924C,
+ * Cormorant Garamond for display, Manrope for UI, tactile grain, editorial pacing, and restrained motion.
+ */
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Manrope:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -27,151 +28,78 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  --color-chart-1: var(--chart-1);
-  --color-chart-2: var(--chart-2);
-  --color-chart-3: var(--chart-3);
-  --color-chart-4: var(--chart-4);
-  --color-chart-5: var(--chart-5);
-  --color-sidebar: var(--sidebar);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-ring: var(--sidebar-ring);
+  --font-display: "Cormorant Garamond", Georgia, serif;
+  --font-ui: "Manrope", Arial, sans-serif;
 }
 
 :root {
-  --primary: var(--color-blue-700);
-  --primary-foreground: var(--color-blue-50);
-  --sidebar-primary: var(--color-blue-600);
-  --sidebar-primary-foreground: var(--color-blue-50);
-  --chart-1: var(--color-blue-300);
-  --chart-2: var(--color-blue-500);
-  --chart-3: var(--color-blue-600);
-  --chart-4: var(--color-blue-700);
-  --chart-5: var(--color-blue-800);
-  --radius: 0.65rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.235 0.015 65);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.235 0.015 65);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.235 0.015 65);
-  --secondary: oklch(0.98 0.001 286.375);
-  --secondary-foreground: oklch(0.4 0.015 65);
-  --muted: oklch(0.967 0.001 286.375);
-  --muted-foreground: oklch(0.552 0.016 285.938);
-  --accent: oklch(0.967 0.001 286.375);
-  --accent-foreground: oklch(0.141 0.005 285.823);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.985 0 0);
-  --border: oklch(0.92 0.004 286.32);
-  --input: oklch(0.92 0.004 286.32);
-  --ring: oklch(0.623 0.214 259.815);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.235 0.015 65);
-  --sidebar-accent: oklch(0.967 0.001 286.375);
-  --sidebar-accent-foreground: oklch(0.141 0.005 285.823);
-  --sidebar-border: oklch(0.92 0.004 286.32);
-  --sidebar-ring: oklch(0.623 0.214 259.815);
-}
-
-.dark {
-  --primary: var(--color-blue-700);
-  --primary-foreground: var(--color-blue-50);
-  --sidebar-primary: var(--color-blue-500);
-  --sidebar-primary-foreground: var(--color-blue-50);
-  --background: oklch(0.141 0.005 285.823);
-  --foreground: oklch(0.85 0.005 65);
-  --card: oklch(0.21 0.006 285.885);
-  --card-foreground: oklch(0.85 0.005 65);
-  --popover: oklch(0.21 0.006 285.885);
-  --popover-foreground: oklch(0.85 0.005 65);
-  --secondary: oklch(0.24 0.006 286.033);
-  --secondary-foreground: oklch(0.7 0.005 65);
-  --muted: oklch(0.274 0.006 286.033);
-  --muted-foreground: oklch(0.705 0.015 286.067);
-  --accent: oklch(0.274 0.006 286.033);
-  --accent-foreground:  oklch(0.92 0.005 65);
-  --destructive: oklch(0.704 0.191 22.216);
-  --destructive-foreground: oklch(0.985 0 0);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.488 0.243 264.376);
-  --chart-1: var(--color-blue-300);
-  --chart-2: var(--color-blue-500);
-  --chart-3: var(--color-blue-600);
-  --chart-4: var(--color-blue-700);
-  --chart-5: var(--color-blue-800);
-  --sidebar: oklch(0.21 0.006 285.885);
-  --sidebar-foreground: oklch(0.85 0.005 65);
-  --sidebar-accent: oklch(0.274 0.006 286.033);
-  --sidebar-accent-foreground:  oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.488 0.243 264.376);
+  --gold: #b8924c;
+  --background: #f5f2ec;
+  --foreground: #171512;
+  --card: #ffffff;
+  --card-foreground: #171512;
+  --popover: #ffffff;
+  --popover-foreground: #171512;
+  --primary: #171512;
+  --primary-foreground: #f7f4ed;
+  --secondary: #eae4d9;
+  --secondary-foreground: #171512;
+  --muted: #e8e1d6;
+  --muted-foreground: #5d574f;
+  --accent: #b8924c;
+  --accent-foreground: #171512;
+  --destructive: #a6372d;
+  --destructive-foreground: #ffffff;
+  --border: #d8d0c4;
+  --input: #d8d0c4;
+  --ring: #b8924c;
+  --radius: 0;
 }
 
 @layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
-  button:not(:disabled),
-  [role="button"]:not([aria-disabled="true"]),
-  [type="button"]:not(:disabled),
-  [type="submit"]:not(:disabled),
-  [type="reset"]:not(:disabled),
-  a[href],
-  select:not(:disabled),
-  input[type="checkbox"]:not(:disabled),
-  input[type="radio"]:not(:disabled) {
-    @apply cursor-pointer;
-  }
+  * { @apply border-border outline-ring/50; }
+  html { scroll-behavior: smooth; }
+  body { @apply bg-background text-foreground; font-family: var(--font-ui); }
+  button:not(:disabled), [role="button"]:not([aria-disabled="true"]), [type="button"]:not(:disabled), [type="submit"]:not(:disabled), a[href] { @apply cursor-pointer; }
+  ::selection { background: #b8924c; color: #171512; }
 }
 
 @layer components {
-  /**
-   * Custom container utility that centers content and adds responsive padding.
-   *
-   * This overrides Tailwind's default container behavior to:
-   * - Auto-center content (mx-auto)
-   * - Add responsive horizontal padding
-   * - Set max-width for large screens
-   *
-   * Usage: <div className="container">...</div>
-   *
-   * For custom widths, use max-w-* utilities directly:
-   * <div className="max-w-6xl mx-auto px-4">...</div>
-   */
-  .container {
-    width: 100%;
-    margin-left: auto;
-    margin-right: auto;
-    padding-left: 1rem; /* 16px - mobile padding */
-    padding-right: 1rem;
-  }
+  .font-display { font-family: var(--font-display); }
+  .font-ui { font-family: var(--font-ui); }
+  .section-kicker { font-family: var(--font-ui); font-size: 10px; font-weight: 700; letter-spacing: .25em; text-transform: uppercase; color: #8f6b2c; }
+  .nav-link { position: relative; transition: color 180ms cubic-bezier(.23,1,.32,1); }
+  .nav-link::after { position: absolute; bottom: -7px; left: 0; width: 100%; height: 1px; content: ""; transform: scaleX(0); transform-origin: right; background: var(--gold); transition: transform 210ms cubic-bezier(.23,1,.32,1); }
+  .nav-link:hover { color: white; }
+  .nav-link:hover::after { transform: scaleX(1); transform-origin: left; }
+  .gold-button { display: inline-flex; align-items: center; justify-content: center; gap: 10px; background: var(--gold); padding: 16px 20px; font-family: var(--font-ui); font-size: 10px; font-weight: 700; letter-spacing: .19em; text-transform: uppercase; color: #171512; transition: transform 180ms cubic-bezier(.23,1,.32,1), background-color 180ms cubic-bezier(.23,1,.32,1); }
+  .gold-button:hover { background: #d2b572; }
+  .gold-button:active { transform: scale(.97); }
+  .ghost-button { display: inline-flex; align-items: center; justify-content: center; gap: 10px; border: 1px solid rgba(255,255,255,.35); padding: 15px 19px; font-family: var(--font-ui); font-size: 10px; font-weight: 700; letter-spacing: .19em; text-transform: uppercase; color: white; transition: background-color 180ms cubic-bezier(.23,1,.32,1), color 180ms cubic-bezier(.23,1,.32,1), transform 180ms cubic-bezier(.23,1,.32,1); }
+  .ghost-button:hover { background: white; color: #171512; }
+  .ghost-button:active { transform: scale(.97); }
+  .product-card { position: relative; isolation: isolate; overflow: hidden; background-position: center; background-size: cover; transition: transform 280ms cubic-bezier(.23,1,.32,1); }
+  .product-card::before { position: absolute; inset: 0; z-index: -1; content: ""; opacity: .98; transition: transform 500ms cubic-bezier(.23,1,.32,1), opacity 500ms cubic-bezier(.23,1,.32,1); }
+  .product-card:hover::before { transform: scale(1.04); opacity: 1; }
+  .product-card--black::before { background: radial-gradient(circle at 70% 22%, rgba(184,146,76,.75), transparent 20%), linear-gradient(145deg, #201c18 0%, #060606 82%); }
+  .product-card--ruby::before { background: radial-gradient(circle at 22% 18%, rgba(216,184,105,.55), transparent 15%), linear-gradient(155deg, #6e1c22 0%, #22070b 79%); }
+  .product-card--black::after, .product-card--ruby::after { position: absolute; inset: 18% 18%; z-index: -1; border: 1px solid rgba(184,146,76,.44); content: ""; transform: rotate(12deg); transition: transform 520ms cubic-bezier(.23,1,.32,1); }
+  .product-card:hover::after { transform: rotate(0deg) scale(1.05); }
+  .gold-rule { display: inline-block; width: 38px; height: 1px; background: var(--gold); }
+  .footer-link { display: inline-flex; align-items: center; gap: 7px; transition: color 180ms cubic-bezier(.23,1,.32,1); }
+  .footer-link:hover { color: var(--gold); }
+  .grain-overlay { pointer-events: none; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 160 160' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.65'/%3E%3C/svg%3E"); }
+}
 
-  .flex {
-    min-height: 0;
-    min-width: 0;
-  }
+@media (prefers-reduced-motion: no-preference) {
+  .reveal { animation: rise-in 620ms cubic-bezier(.23,1,.32,1) both; }
+  .reveal-2 { animation-delay: 80ms; }
+  .reveal-3 { animation-delay: 150ms; }
+  .reveal-4 { animation-delay: 220ms; }
+}
 
-  @media (min-width: 640px) {
-    .container {
-      padding-left: 1.5rem; /* 24px - tablet padding */
-      padding-right: 1.5rem;
-    }
-  }
+@keyframes rise-in { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
 
-  @media (min-width: 1024px) {
-    .container {
-      padding-left: 2rem; /* 32px - desktop padding */
-      padding-right: 2rem;
-      max-width: 1280px; /* Standard content width */
-    }
-  }
+@media (max-width: 640px) {
+  .gold-button, .ghost-button { width: 100%; }
 }

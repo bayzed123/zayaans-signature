@@ -1,0 +1,2 @@
+# Local development only. Never commit real production secrets here.
+ALLOWED_ORIGIN=http://localhost:3000
