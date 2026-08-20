@@ -64,4 +64,4 @@ jobs:
       - name: Deploy Cloudflare Worker
         run: npx --yes wrangler@4 deploy --config cloudflare/wrangler.toml
         env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUD_FLARE_API }}

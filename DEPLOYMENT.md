@@ -14,7 +14,7 @@ In the repository’s **Settings → Pages**, select **GitHub Actions** as the b
 
 | Secret | Required value | Purpose |
 | --- | --- | --- |
-| `CLOUDFLARE_API_TOKEN` | A Cloudflare API token that can deploy Workers and edit the chosen D1 binding | Allows the workflow to publish the Worker after a push. |
+| `CLOUD_FLARE_API` | Your Cloudflare **account API token** with Worker and D1 access | Used as `CLOUDFLARE_API_TOKEN` only inside the GitHub Actions deployment job. |
 | `VITE_API_BASE_URL` | The live Worker URL, such as `https://zayaans-signature-api.<account-subdomain>.workers.dev` | Optional repository variable used by the frontend build to submit newsletter opt-ins. |
 
 > The workflow does not expose any secret to the static site. Only `VITE_API_BASE_URL` is public by design because it is an API address rather than a credential.
