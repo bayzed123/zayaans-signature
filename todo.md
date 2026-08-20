@@ -40,3 +40,16 @@
 - [x] Repair the GitHub Pages root project URL while preserving the user’s repository changes.
 - [x] Verify the live storefront root and direct application routes after the repair.
 - [x] Reconfirm the published root, admin, cart, tracking, and category routes after the final deployment.
+
+## Mobile Administrator Product Management
+
+- [ ] Add a clearly labelled mobile navigation control for Overview, Products, Categories, and Orders.
+- [ ] Add a prominent mobile-friendly Add Product action that opens the product editor.
+- [ ] Add large, touch-friendly Edit controls to every catalogue product entry.
+- [ ] Verify the administrator product workflow at a mobile viewport and preserve desktop usability.
+
+## Premium Catalogue Navigation
+
+- [ ] Create a premium, buyer-friendly category discovery navigation for the complete supplied women’s, kids’, teen, newborn, Nargisus, sale, and daily-life hierarchy.
+- [ ] Provide usable mobile category navigation with clear collection groupings and fast access to every subcategory.
+- [ ] Validate the complete category navigation on desktop and mobile without disrupting direct category URLs.
