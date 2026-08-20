@@ -1,0 +1,2 @@
+ALTER TABLE categories ADD COLUMN parent_label TEXT NOT NULL DEFAULT '';
+ALTER TABLE categories ADD COLUMN audience TEXT NOT NULL DEFAULT 'women';

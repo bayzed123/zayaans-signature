@@ -10,6 +10,15 @@
   </head>
   <body>
     <div id="root"></div>
+    <script>
+      (function () {
+        var query = new URLSearchParams(window.location.search);
+        var route = query.get("route");
+        if (!route || route.charAt(0) !== "/") return;
+        var base = "%BASE_URL%".replace(/\/$/, "");
+        window.history.replaceState(null, "", base + route);
+      })();
+    </script>
     <script type="module" src="/src/main.tsx"></script>
     <script defer src="%VITE_ANALYTICS_ENDPOINT%/umami" data-website-id="%VITE_ANALYTICS_WEBSITE_ID%"></script>
   </body>

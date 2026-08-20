@@ -7,6 +7,8 @@ export type Category = {
   description: string;
   imageUrl: string;
   sortOrder: number;
+  parentLabel: string;
+  audience: "women" | "kids";
 };
 
 export type Product = {
@@ -16,6 +18,7 @@ export type Product = {
   sku: string;
   categoryId: number | null;
   categoryName: string | null;
+  categorySlug: string | null;
   summary: string;
   description: string;
   fabric: string;
@@ -27,6 +30,11 @@ export type Product = {
   gallery: string[];
   priceMinor: number;
   compareAtMinor: number;
+  vatNote: string;
+  fitInfo: string;
+  washCare: string;
+  availabilityNote: string;
+  tryOnEnabled: boolean;
   stock: number;
   status: "draft" | "active" | "archived";
   featured: boolean;

@@ -1,0 +1,5 @@
+ALTER TABLE products ADD COLUMN vat_note TEXT NOT NULL DEFAULT '+ VAT';
+ALTER TABLE products ADD COLUMN fit_info TEXT NOT NULL DEFAULT '';
+ALTER TABLE products ADD COLUMN wash_care TEXT NOT NULL DEFAULT '';
+ALTER TABLE products ADD COLUMN availability_note TEXT NOT NULL DEFAULT '';
+ALTER TABLE products ADD COLUMN try_on_enabled INTEGER NOT NULL DEFAULT 1 CHECK (try_on_enabled IN (0,1));

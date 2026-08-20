@@ -14,9 +14,10 @@ export interface Env {
 type Payload = Record<string, unknown>;
 type ProductRow = {
   id: number; slug: string; name: string; sku: string; category_id: number | null;
-  category_name?: string | null; summary: string; description: string; fabric: string;
+  category_name?: string | null; category_slug?: string | null; summary: string; description: string; fabric: string;
   lead_time: string; size_guide: string; sizes_json: string; colours_json: string;
   image_url: string; gallery_json: string; price_minor: number; compare_at_minor: number;
+  vat_note: string; fit_info: string; wash_care: string; availability_note: string; try_on_enabled: number;
   stock: number; status: string; featured: number; created_at: string; updated_at: string;
 };
 
@@ -74,10 +75,12 @@ function phoneDigits(value: string): string {
 function mapProduct(row: ProductRow) {
   return {
     id: row.id, slug: row.slug, name: row.name, sku: row.sku, categoryId: row.category_id,
-    categoryName: row.category_name ?? null, summary: row.summary, description: row.description,
+    categoryName: row.category_name ?? null, categorySlug: row.category_slug ?? null, summary: row.summary, description: row.description,
     fabric: row.fabric, leadTime: row.lead_time, sizeGuide: row.size_guide,
     sizes: parseArray(row.sizes_json), colours: parseArray(row.colours_json), imageUrl: row.image_url,
     gallery: parseArray(row.gallery_json), priceMinor: row.price_minor, compareAtMinor: row.compare_at_minor,
+    vatNote: row.vat_note, fitInfo: row.fit_info, washCare: row.wash_care,
+    availabilityNote: row.availability_note, tryOnEnabled: Boolean(row.try_on_enabled),
     stock: row.stock, status: row.status, featured: Boolean(row.featured), createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
@@ -133,7 +136,7 @@ function passwordMatches(given: string, expected: string): boolean {
 
 async function categories(env: Env) {
   const { results } = await env.COMMERCE.prepare(
-    "SELECT id, slug, name, description, image_url AS imageUrl, sort_order AS sortOrder FROM categories ORDER BY sort_order, name",
+    "SELECT id, slug, name, description, image_url AS imageUrl, sort_order AS sortOrder, parent_label AS parentLabel, audience FROM categories ORDER BY audience, parent_label, sort_order, name",
   ).all();
   return results ?? [];
 }
@@ -157,6 +160,9 @@ async function adminProductWrite(env: Env, body: Payload, existing?: ProductRow)
     sizeGuide: clean(body.sizeGuide ?? existing?.size_guide, 1200), sizes: JSON.stringify(cleanArray(body.sizes ?? parseArray(existing?.sizes_json ?? "[]"))),
     colours: JSON.stringify(cleanArray(body.colours ?? parseArray(existing?.colours_json ?? "[]"))), imageUrl: clean(body.imageUrl ?? existing?.image_url, 500),
     gallery: JSON.stringify(cleanArray(body.gallery ?? parseArray(existing?.gallery_json ?? "[]"), 12, 500)), featured: body.featured === undefined ? (existing?.featured ?? 0) : body.featured ? 1 : 0,
+    vatNote: clean(body.vatNote ?? existing?.vat_note ?? "+ VAT", 80) || "+ VAT",
+    fitInfo: clean(body.fitInfo ?? existing?.fit_info, 500), washCare: clean(body.washCare ?? existing?.wash_care, 1000),
+    availabilityNote: clean(body.availabilityNote ?? existing?.availability_note, 300), tryOnEnabled: body.tryOnEnabled === undefined ? (existing?.try_on_enabled ?? 1) : body.tryOnEnabled ? 1 : 0,
   };
 }
 
@@ -169,7 +175,7 @@ async function publicCatalogue(request: Request, env: Env) {
   if (category) { where.push("c.slug = ?"); bindings.push(category); }
   if (featured) where.push("p.featured = 1");
   const { results } = await env.COMMERCE.prepare(
-    `SELECT p.*, c.name AS category_name FROM products p LEFT JOIN categories c ON c.id = p.category_id WHERE ${where.join(" AND ")} ORDER BY p.featured DESC, p.created_at DESC`,
+    `SELECT p.*, c.name AS category_name, c.slug AS category_slug FROM products p LEFT JOIN categories c ON c.id = p.category_id WHERE ${where.join(" AND ")} ORDER BY p.featured DESC, p.created_at DESC`,
   ).bind(...bindings).all<ProductRow>();
   return json({ products: (results ?? []).map(mapProduct), categories: await categories(env) }, 200, request, env);
 }
@@ -223,11 +229,11 @@ async function trackOrder(request: Request, env: Env) {
 
 async function adminRoute(request: Request, env: Env, url: URL): Promise<Response> {
   if (url.pathname === "/api/admin/session" && request.method === "POST") {
-    if (!env.ADMIN_PASSWORD) return json({ error: "Administrator access is not configured yet" }, 503, request, env);
+    if (!env.ADMIN_PASSWORD || !env.ADMIN_USERNAME) return json({ error: "Administrator access is not configured yet" }, 503, request, env);
     const body = await readPayload(request);
     const username = clean(body?.username, 80).toLowerCase();
     const password = clean(body?.password, 200);
-    if (username !== (env.ADMIN_USERNAME || "zayaan").toLowerCase() || !passwordMatches(password, env.ADMIN_PASSWORD)) return json({ error: "Incorrect administrator credentials" }, 401, request, env);
+    if (username !== env.ADMIN_USERNAME.toLowerCase() || !passwordMatches(password, env.ADMIN_PASSWORD)) return json({ error: "Incorrect administrator credentials" }, 401, request, env);
     return json({ token: await issueAdminToken(env.ADMIN_PASSWORD), username }, 200, request, env);
   }
   if (!await hasAdminSession(request, env)) return json({ error: "Administrator session required" }, 401, request, env);
@@ -243,7 +249,7 @@ async function adminRoute(request: Request, env: Env, url: URL): Promise<Respons
   if (url.pathname === "/api/admin/categories" && request.method === "POST") {
     const body = await readPayload(request); const name = clean(body?.name, 80); const slug = slugify(clean(body?.slug ?? name, 100));
     if (!name || !slug) return json({ error: "Category name is required" }, 422, request, env);
-    try { const inserted = await env.COMMERCE.prepare("INSERT INTO categories (name, slug, description, image_url, sort_order) VALUES (?, ?, ?, ?, ?) RETURNING id").bind(name, slug, clean(body?.description, 500), clean(body?.imageUrl, 500), Number(body?.sortOrder) || 0).first<{ id: number }>(); return json({ id: inserted?.id, name, slug }, 201, request, env); } catch { return json({ error: "That category already exists" }, 409, request, env); }
+    try { const inserted = await env.COMMERCE.prepare("INSERT INTO categories (name, slug, description, image_url, sort_order, parent_label, audience) VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING id").bind(name, slug, clean(body?.description, 500), clean(body?.imageUrl, 500), Number(body?.sortOrder) || 0, clean(body?.parentLabel, 120), clean(body?.audience, 20) || "women").first<{ id: number }>(); return json({ id: inserted?.id, name, slug }, 201, request, env); } catch { return json({ error: "That category already exists" }, 409, request, env); }
   }
   if (url.pathname === "/api/admin/products" && request.method === "GET") {
     const { results } = await env.COMMERCE.prepare("SELECT p.*, c.name AS category_name FROM products p LEFT JOIN categories c ON c.id = p.category_id ORDER BY p.updated_at DESC").all<ProductRow>();
@@ -253,7 +259,7 @@ async function adminRoute(request: Request, env: Env, url: URL): Promise<Respons
     const body = await readPayload(request); if (!body) return json({ error: "Invalid product payload" }, 400, request, env);
     try {
       const product = await adminProductWrite(env, body);
-      const row = await env.COMMERCE.prepare("INSERT INTO products (slug, name, sku, category_id, summary, description, fabric, lead_time, size_guide, sizes_json, colours_json, image_url, gallery_json, price_minor, compare_at_minor, stock, status, featured) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id").bind(product.slug, product.name, product.sku, product.categoryId, product.summary, product.description, product.fabric, product.leadTime, product.sizeGuide, product.sizes, product.colours, product.imageUrl, product.gallery, product.priceMinor, product.compareAtMinor, product.stock, product.status, product.featured).first<{ id: number }>();
+      const row = await env.COMMERCE.prepare("INSERT INTO products (slug, name, sku, category_id, summary, description, fabric, lead_time, size_guide, sizes_json, colours_json, image_url, gallery_json, price_minor, compare_at_minor, stock, status, featured, vat_note, fit_info, wash_care, availability_note, try_on_enabled) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id").bind(product.slug, product.name, product.sku, product.categoryId, product.summary, product.description, product.fabric, product.leadTime, product.sizeGuide, product.sizes, product.colours, product.imageUrl, product.gallery, product.priceMinor, product.compareAtMinor, product.stock, product.status, product.featured, product.vatNote, product.fitInfo, product.washCare, product.availabilityNote, product.tryOnEnabled).first<{ id: number }>();
       return json({ id: row?.id, slug: product.slug }, 201, request, env);
     } catch (error) { return json({ error: error instanceof Error ? error.message : "Unable to create product" }, 422, request, env); }
   }
@@ -264,7 +270,7 @@ async function adminRoute(request: Request, env: Env, url: URL): Promise<Respons
     const body = await readPayload(request); if (!body) return json({ error: "Invalid product payload" }, 400, request, env);
     try {
       const product = await adminProductWrite(env, body, current);
-      await env.COMMERCE.prepare("UPDATE products SET slug=?, name=?, sku=?, category_id=?, summary=?, description=?, fabric=?, lead_time=?, size_guide=?, sizes_json=?, colours_json=?, image_url=?, gallery_json=?, price_minor=?, compare_at_minor=?, stock=?, status=?, featured=?, updated_at=CURRENT_TIMESTAMP WHERE id=?").bind(product.slug, product.name, product.sku, product.categoryId, product.summary, product.description, product.fabric, product.leadTime, product.sizeGuide, product.sizes, product.colours, product.imageUrl, product.gallery, product.priceMinor, product.compareAtMinor, product.stock, product.status, product.featured, id).run();
+      await env.COMMERCE.prepare("UPDATE products SET slug=?, name=?, sku=?, category_id=?, summary=?, description=?, fabric=?, lead_time=?, size_guide=?, sizes_json=?, colours_json=?, image_url=?, gallery_json=?, price_minor=?, compare_at_minor=?, stock=?, status=?, featured=?, vat_note=?, fit_info=?, wash_care=?, availability_note=?, try_on_enabled=?, updated_at=CURRENT_TIMESTAMP WHERE id=?").bind(product.slug, product.name, product.sku, product.categoryId, product.summary, product.description, product.fabric, product.leadTime, product.sizeGuide, product.sizes, product.colours, product.imageUrl, product.gallery, product.priceMinor, product.compareAtMinor, product.stock, product.status, product.featured, product.vatNote, product.fitInfo, product.washCare, product.availabilityNote, product.tryOnEnabled, id).run();
       return json({ id, slug: product.slug }, 200, request, env);
     } catch (error) { return json({ error: error instanceof Error ? error.message : "Unable to update product" }, 422, request, env); }
   }
@@ -306,7 +312,7 @@ export default {
     if (url.pathname === "/api/products" && request.method === "GET") return publicCatalogue(request, env);
     const productMatch = url.pathname.match(/^\/api\/products\/([a-z0-9-]+)$/);
     if (productMatch && request.method === "GET") {
-      const row = await env.COMMERCE.prepare("SELECT p.*, c.name AS category_name FROM products p LEFT JOIN categories c ON c.id=p.category_id WHERE p.slug=? AND p.status='active'").bind(productMatch[1]).first<ProductRow>();
+      const row = await env.COMMERCE.prepare("SELECT p.*, c.name AS category_name, c.slug AS category_slug FROM products p LEFT JOIN categories c ON c.id=p.category_id WHERE p.slug=? AND p.status='active'").bind(productMatch[1]).first<ProductRow>();
       return row ? json({ product: mapProduct(row) }, 200, request, env) : json({ error: "Piece not found" }, 404, request, env);
     }
     if (url.pathname === "/api/orders" && request.method === "POST") return createOrder(request, env);

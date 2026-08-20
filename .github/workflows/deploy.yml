@@ -65,13 +65,15 @@ jobs:
         run: npx --yes wrangler@4 deploy --config cloudflare/wrangler.toml
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUD_FLARE_API }}
-      - name: Configure administrator password when provided
+      - name: Configure private administrator credentials when provided
         run: |
-          if [ -z "$ZAYAAN_ADMIN_PASSWORD" ]; then
-            echo "Administrator password not configured; public catalogue remains available and /admin will stay locked."
+          if [ -z "$ZAYAAN_ADMIN_PASSWORD" ] || [ -z "$ZAYAAN_ADMIN_USERNAME" ]; then
+            echo "Administrator credentials not configured; public catalogue remains available and /admin will stay locked."
             exit 0
           fi
           printf '%s' "$ZAYAAN_ADMIN_PASSWORD" | npx --yes wrangler@4 secret put ADMIN_PASSWORD --config cloudflare/wrangler.toml
+          printf '%s' "$ZAYAAN_ADMIN_USERNAME" | npx --yes wrangler@4 secret put ADMIN_USERNAME --config cloudflare/wrangler.toml
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUD_FLARE_API }}
           ZAYAAN_ADMIN_PASSWORD: ${{ secrets.ZAYAAN_ADMIN_PASSWORD }}
+          ZAYAAN_ADMIN_USERNAME: ${{ secrets.ZAYAAN_ADMIN_USERNAME }}

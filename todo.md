@@ -16,5 +16,20 @@
 - [x] Add public category, product-detail, cart, and order-tracking views with real store data.
 - [ ] Add an administrator-only dashboard for managing products, categories, and order statuses.
 - [ ] Configure the administrator password secret for the live Cloudflare Worker.
+
+## Women’s and Kids’ Boutique Finalization
+
+- [ ] Add GitHub Pages SPA route recovery so direct boutique links do not show a 404 page.
+- [ ] Keep `/admin` private and configure the provided administrator credentials as a Worker secret without exposing them in source control.
+- [ ] Replace any men’s-category structure with the supplied women’s and kids’ category hierarchy.
+- [x] Load the supplied women’s and kids’ category hierarchy into the Cloudflare commerce database with no men’s parent category.
+- [ ] Add clearly labelled initial catalogue entries, pricing, cart actions, and Shop Now actions for the women’s and kids’ boutique.
+- [ ] Verify the published category paths, cart, product pages, direct route recovery, and protected admin login.
+
+## Structured Product Detail Requirements
+
+- [ ] Add product-level VAT, fit, wash-care, availability, and try-on/enquiry fields to the commerce data model.
+- [ ] Add matching private admin editor controls for all structured fashion product information.
+- [ ] Present price, VAT, SKU, variants, availability, free-shipping notice, product information, details, and care instructions on every product page.
 - [ ] Validate customer and administrator journeys before delivery.
 - [ ] Provide the final repository and access details.

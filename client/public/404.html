@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Opening Zayaan’s Signature</title>
+    <script>
+      (function () {
+        var base = "/zayaans-signature";
+        var requestedPath = window.location.pathname.indexOf(base) === 0 ? window.location.pathname.slice(base.length) : window.location.pathname;
+        var destination = base + "/?route=" + encodeURIComponent((requestedPath || "/") + window.location.search + window.location.hash);
+        window.location.replace(destination);
+      })();
+    </script>
+  </head>
+  <body></body>
+</html>

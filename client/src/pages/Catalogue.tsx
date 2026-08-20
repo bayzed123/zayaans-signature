@@ -21,7 +21,12 @@ export default function Catalogue() {
     return () => { alive = false; };
   }, []);
 
-  const products = activeCategory === "all" ? catalogue.products : catalogue.products.filter((product) => product.categoryName === activeCategory);
+  const products = activeCategory === "all" ? catalogue.products : catalogue.products.filter((product) => product.categorySlug === activeCategory);
+  const categoryGroups = catalogue.categories.reduce<Record<string, Category[]>>((groups, category) => {
+    const title = category.parentLabel || (category.audience === "kids" ? "Kids" : "Women");
+    groups[title] = [...(groups[title] ?? []), category];
+    return groups;
+  }, {});
 
   return (
     <div className="min-h-screen bg-[#f5f2ec] text-[#171512]">
@@ -36,10 +41,9 @@ export default function Catalogue() {
         </section>
         <section className="px-5 py-12 sm:px-8 lg:px-12 lg:py-16">
           <div className="mx-auto max-w-[1440px]">
-            <div className="flex flex-wrap gap-2 border-b border-black/10 pb-8">
-              {["all", ...catalogue.categories.map((category) => category.name)].map((category) => (
-                <button key={category} onClick={() => setActiveCategory(category)} className={`rounded-full border px-4 py-2 font-ui text-[10px] font-bold uppercase tracking-[.17em] transition-colors ${activeCategory === category ? "border-[#171512] bg-[#171512] text-white" : "border-black/15 text-black/60 hover:border-[#8f6b2c] hover:text-[#8f6b2c]"}`}>{category === "all" ? "All pieces" : category}</button>
-              ))}
+            <div className="border-b border-black/10 pb-8">
+              <button onClick={() => setActiveCategory("all")} className={`rounded-full border px-4 py-2 font-ui text-[10px] font-bold uppercase tracking-[.17em] transition-colors ${activeCategory === "all" ? "border-[#171512] bg-[#171512] text-white" : "border-black/15 text-black/60 hover:border-[#8f6b2c] hover:text-[#8f6b2c]"}`}>All pieces</button>
+              <div className="mt-6 grid gap-5 lg:grid-cols-3">{Object.entries(categoryGroups).map(([group, entries]) => <div key={group}><p className="font-ui text-[9px] font-bold uppercase tracking-[.18em] text-[#8f6b2c]">{group}</p><div className="mt-3 flex flex-wrap gap-2">{entries.map((category) => <button key={category.slug} onClick={() => setActiveCategory(category.slug)} className={`border px-3 py-2 font-ui text-[10px] uppercase tracking-[.12em] transition-colors ${activeCategory === category.slug ? "border-[#171512] bg-[#171512] text-white" : "border-black/15 text-black/60 hover:border-[#8f6b2c] hover:text-[#8f6b2c]"}`}>{category.name}</button>)}</div></div>)}</div>
             </div>
             {loading && <div className="grid min-h-[300px] place-items-center"><Loader2 className="animate-spin text-[#8f6b2c]" /></div>}
             {error && <div className="my-10 border border-red-800/30 bg-red-50 p-6 font-ui text-sm text-red-900">{error}</div>}
