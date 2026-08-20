@@ -88,7 +88,9 @@
 
 ## Project-Owned Public Image Migration
 
-- [ ] Audit all active product and category image URLs for external or non-project-owned references.
-- [ ] Copy the approved catalogue imagery into `client/public/images/catalogue/` and register the project-owned asset paths in the repository manifests.
-- [ ] Replace all storefront, category, product, and live D1 image references with the GitHub Pages project asset paths.
-- [ ] Verify every active product and category image loads from the Zayaan’s Signature repository on the live storefront and private dashboard.
+- [x] Audit all active product and category image URLs for external or non-project-owned references.
+- [x] Copy the approved catalogue imagery into `client/public/images/catalogue/` and register the project-owned asset paths in the repository manifests.
+- [x] Replace all storefront, category, product, and live D1 image references with the GitHub Pages project asset paths.
+- [x] Verify every active product and category image loads from the Zayaan’s Signature repository on the live storefront and private dashboard.
+- [x] Audit all image-bearing D1 records, including non-active products and gallery fields, and remove any remaining non-project-owned references.
+- [x] Force-load the complete live collection image set and confirm every category and product image source is project-owned and fully rendered.
