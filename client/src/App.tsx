@@ -9,6 +9,7 @@ import { CartProvider } from "./contexts/CartContext";
 import Admin from "./pages/Admin";
 import Cart from "./pages/Cart";
 import Catalogue from "./pages/Catalogue";
+import CustomerDiscovery from "./pages/CustomerDiscovery";
 import Home from "./pages/Home";
 import ProductDetail from "./pages/ProductDetail";
 import Track from "./pages/Track";
@@ -24,6 +25,8 @@ function AppRoutes() {
       <Route path="/products/:slug" component={ProductDetail} />
       <Route path="/cart" component={Cart} />
       <Route path="/track" component={Track} />
+      <Route path="/discover" component={CustomerDiscovery} />
+      <Route path="/discover/:focus" component={CustomerDiscovery} />
       <Route path="/admin" component={Admin} />
       <Route path="/404" component={NotFound} />
       <Route component={NotFound} />

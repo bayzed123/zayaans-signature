@@ -118,7 +118,12 @@
 - [x] Task 02c — Apply the loading system only to real asynchronous storefront and private-admin operations without changing business logic.
 - [x] Task 02d — Add focused regression coverage and complete desktop/mobile visual verification for the Task 02 loading experience.
 - [x] Task 02 verification follow-up — Add automated contrast, status-semantics, and named async-surface assertions to complement the captured desktop/mobile browser evidence.
-- [ ] Task 03 — Improve customer navigation with responsive desktop and mobile discovery paths for Home, Shop, Categories, Offers, New Arrivals, Best Sellers, Contact, Cart, Wishlist, and Customer Account.
+- [x] Task 03 — Improve customer navigation with responsive desktop and mobile discovery paths for Home, Shop, Categories, Offers, New Arrivals, Best Sellers, Contact, Cart, Wishlist, and Customer Account; use transparent discovery pages until the underlying account, wishlist, offer, arrival, and bestseller features are implemented in their dedicated tasks.
+- [x] Task 03a — Audit existing desktop/mobile customer routes and identify which requested destinations already have a real page versus a truthful unavailable state.
+- [x] Task 03b — Build a responsive customer discovery surface that keeps Home, Shop, Categories, Offers, New Arrivals, Best Sellers, Contact, Cart, Wishlist, and Account paths visible and keyboard-accessible.
+- [x] Task 03c — Ensure every navigation destination resolves honestly without dead links, invented customer data, or public exposure of private administration.
+- [x] Task 03d — Add focused navigation regression coverage and verify all customer paths on desktop and mobile before publishing Task 03.
+- [x] Task 03 verification follow-up — Add rendered DOM-level tests for the opened desktop discovery menu and mobile navigation drawer, then re-run all route and responsive checks.
 - [ ] Task 04 — Extend product management for brands, promotional placement flags, richer product media, controlled product deletion, and complete administrator validation.
 - [ ] Task 05 — Extend category management with subcategory hierarchy, category status, edit/delete safeguards, and explicit ordering controls.
 - [ ] Task 06 — Upgrade the product-detail experience with an accessible image gallery and zoom, discount presentation, stock state, related-product discovery, share support, and only legitimate review handling.
