@@ -124,11 +124,11 @@
 - [x] Task 03c — Ensure every navigation destination resolves honestly without dead links, invented customer data, or public exposure of private administration.
 - [x] Task 03d — Add focused navigation regression coverage and verify all customer paths on desktop and mobile before publishing Task 03.
 - [x] Task 03 verification follow-up — Add rendered DOM-level tests for the opened desktop discovery menu and mobile navigation drawer, then re-run all route and responsive checks.
-- [ ] Task 04 — Extend product management for brands, promotional placement flags, richer product media, controlled product deletion, and complete administrator validation.
+- [x] Task 04 — Extend product management for brands, promotional placement flags, richer product media, controlled product deletion, and complete administrator validation.
 - [x] Task 04a — Audit the current D1 product schema, protected Worker routes, product editor, and product-card controls for existing brand, promotion, media, and deletion support.
-- [ ] Task 04b — Add protected product brand, promotional placement, and validated multi-image gallery management without accepting non-project-owned media sources.
-- [ ] Task 04c — Add a guarded administrator product-deletion flow that protects products referenced by orders and requires explicit confirmation before destructive action.
-- [ ] Task 04d — Add focused server and rendered-admin regression coverage, then verify product editing and deletion safeguards on desktop and mobile before publishing.
+- [x] Task 04b — Add protected product brand, promotional placement, and validated multi-image gallery management without accepting non-project-owned media sources.
+- [x] Task 04c — Add a guarded administrator product-deletion flow that protects products referenced by orders and requires explicit confirmation before destructive action.
+- [x] Task 04d — Add focused server and rendered-admin regression coverage, then verify product editing and deletion safeguards on desktop and mobile before publishing.
 - [ ] Task 05 — Extend category management with subcategory hierarchy, category status, edit/delete safeguards, and explicit ordering controls.
 - [ ] Task 06 — Upgrade the product-detail experience with an accessible image gallery and zoom, discount presentation, stock state, related-product discovery, share support, and only legitimate review handling.
 - [ ] Task 07 — Add server-backed catalogue search, filtering, and sorting for product name, SKU, category, brand, availability, price, promotion, and stock-aware results.
