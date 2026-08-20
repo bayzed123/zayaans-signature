@@ -150,6 +150,10 @@
 - [x] Task 08c — Present transparent subtotal, delivery, payment, and total information throughout the customer cart and checkout journey.
 - [x] Task 08d — Add focused cart and checkout regression coverage, then verify desktop and mobile purchase flows before publishing.
 - [ ] Task 09 — Implement inventory lifecycle management: available and sold quantities, low-stock/out-of-stock alerts, adjustment history, and stock reporting.
+- [x] Task 09a — Audit current stock fields, order deductions, product-management controls, and private reporting baselines.
+- [ ] Task 09b — Add an auditable private inventory-adjustment lifecycle with explicit reasons, available stock, sold quantity, and low-stock threshold controls.
+- [ ] Task 09c — Add private low-stock and out-of-stock alerts plus inventory history and reporting without exposing business data publicly.
+- [ ] Task 09d — Add focused Worker and rendered-admin regression coverage, then verify responsive desktop and mobile inventory workflows before publishing.
 - [ ] Task 10 — Expand order lifecycle management with clear processing, courier, delivery, cancellation, return, failed-delivery, and refund statuses plus a durable order timeline.
 - [ ] Task 11 — Upgrade the private desktop administrator shell with a top navbar, responsive sidebar behavior, search, profile menu, notification area, and mobile drawer without exposing admin navigation publicly.
 - [ ] Task 12 — Build the administrator dashboard business overview for sales, orders, inventory, customers, and delivery states using data-backed cards, charts, and tables.

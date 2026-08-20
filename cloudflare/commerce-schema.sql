@@ -37,6 +37,7 @@ CREATE TABLE IF NOT EXISTS products (
   price_minor INTEGER NOT NULL CHECK (price_minor >= 0),
   compare_at_minor INTEGER NOT NULL DEFAULT 0 CHECK (compare_at_minor >= 0),
   stock INTEGER NOT NULL DEFAULT 0 CHECK (stock >= 0),
+  low_stock_threshold INTEGER NOT NULL DEFAULT 3 CHECK (low_stock_threshold >= 0),
   status TEXT NOT NULL DEFAULT 'draft' CHECK (status IN ('draft','active','archived')),
   featured INTEGER NOT NULL DEFAULT 0 CHECK (featured IN (0,1)),
   created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -48,7 +49,21 @@ CREATE INDEX IF NOT EXISTS idx_products_status ON products(status);
 CREATE INDEX IF NOT EXISTS idx_products_featured ON products(featured);
 CREATE INDEX IF NOT EXISTS idx_products_brand ON products(brand);
 CREATE INDEX IF NOT EXISTS idx_products_promotions ON products(is_new_arrival, is_offer, is_best_seller);
+CREATE INDEX IF NOT EXISTS idx_products_inventory ON products(status, stock, low_stock_threshold);
 CREATE INDEX IF NOT EXISTS idx_categories_management ON categories(audience, parent_label, status, sort_order, name);
+
+CREATE TABLE IF NOT EXISTS inventory_adjustments (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  product_id INTEGER NOT NULL REFERENCES products(id) ON DELETE RESTRICT,
+  previous_stock INTEGER NOT NULL CHECK (previous_stock >= 0),
+  quantity_delta INTEGER NOT NULL,
+  resulting_stock INTEGER NOT NULL CHECK (resulting_stock >= 0),
+  reason TEXT NOT NULL,
+  note TEXT NOT NULL DEFAULT '',
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_inventory_adjustments_product ON inventory_adjustments(product_id, id DESC);
 
 CREATE TABLE IF NOT EXISTS orders (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
