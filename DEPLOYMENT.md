@@ -15,6 +15,7 @@ In the repository’s **Settings → Pages**, select **GitHub Actions** as the b
 | Secret | Required value | Purpose |
 | --- | --- | --- |
 | `CLOUD_FLARE_API` | Your Cloudflare **account API token** with Worker and D1 access | Used as `CLOUDFLARE_API_TOKEN` only inside the GitHub Actions deployment job. |
+| `ZAYAAN_ADMIN_PASSWORD` | A long, unique password chosen by the store owner | Copied into the Worker as an encrypted secret and used only for `/admin` sign-in. |
 | `VITE_API_BASE_URL` | `https://zayaans-signature-api.mahmudajenny6.workers.dev` | Optional override for the built-in production Worker URL used by newsletter opt-ins. |
 
 > The workflow does not expose any secret to the static site. Only `VITE_API_BASE_URL` is public by design because it is an API address rather than a credential.

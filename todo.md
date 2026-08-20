@@ -15,5 +15,6 @@
 - [x] Apply the Cloudflare D1 commerce schema for categories, products, orders, order items, and tracking events.
 - [x] Add public category, product-detail, cart, and order-tracking views with real store data.
 - [ ] Add an administrator-only dashboard for managing products, categories, and order statuses.
+- [ ] Configure the administrator password secret for the live Cloudflare Worker.
 - [ ] Validate customer and administrator journeys before delivery.
 - [ ] Provide the final repository and access details.
