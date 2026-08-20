@@ -354,7 +354,7 @@ async function adminRoute(request: Request, env: Env, url: URL): Promise<Respons
     const [products, orders, lowStock] = await env.COMMERCE.batch([
       env.COMMERCE.prepare("SELECT COUNT(*) AS count FROM products WHERE status != 'archived'"),
       env.COMMERCE.prepare("SELECT COUNT(*) AS count FROM orders WHERE status IN ('pending','confirmed','preparing')"),
-      env.COMMERCE.prepare("SELECT COUNT(*) AS count FROM products WHERE status = 'active' AND stock <= 2"),
+      env.COMMERCE.prepare("SELECT COUNT(*) AS count FROM products WHERE status = 'active' AND stock <= low_stock_threshold"),
     ]);
     return json({ productCount: products.results?.[0]?.count ?? 0, openOrders: orders.results?.[0]?.count ?? 0, lowStock: lowStock.results?.[0]?.count ?? 0 }, 200, request, env);
   }
@@ -382,6 +382,26 @@ async function adminRoute(request: Request, env: Env, url: URL): Promise<Respons
   if (url.pathname === "/api/admin/products" && request.method === "GET") {
     const { results } = await env.COMMERCE.prepare("SELECT p.*, c.name AS category_name FROM products p LEFT JOIN categories c ON c.id = p.category_id ORDER BY p.updated_at DESC").all<ProductRow>();
     return json({ products: (results ?? []).map(mapProduct) }, 200, request, env);
+  }
+  if (url.pathname === "/api/admin/inventory" && request.method === "GET") {
+    const [inventory, adjustments] = await env.COMMERCE.batch([
+      env.COMMERCE.prepare("SELECT p.id, p.name, p.sku, p.stock, p.low_stock_threshold, p.status, COALESCE(SUM(CASE WHEN o.status != 'cancelled' THEN oi.qty ELSE 0 END), 0) AS sold_qty FROM products p LEFT JOIN order_items oi ON oi.product_id = p.id LEFT JOIN orders o ON o.id = oi.order_id GROUP BY p.id ORDER BY CASE WHEN p.stock = 0 THEN 0 WHEN p.stock <= p.low_stock_threshold THEN 1 ELSE 2 END, p.stock, p.name LIMIT 250"),
+      env.COMMERCE.prepare("SELECT ia.id, ia.product_id, p.name AS product_name, ia.previous_stock, ia.quantity_delta, ia.resulting_stock, ia.reason, ia.note, ia.created_at FROM inventory_adjustments ia JOIN products p ON p.id = ia.product_id ORDER BY ia.id DESC LIMIT 100"),
+    ]);
+    return json({ inventory: inventory.results ?? [], adjustments: adjustments.results ?? [] }, 200, request, env);
+  }
+  const inventoryMatch = url.pathname.match(/^\/api\/admin\/products\/(\d+)\/inventory$/);
+  if (inventoryMatch && request.method === "POST") {
+    const id = Number(inventoryMatch[1]); const body = await readPayload(request); const delta = Number(body?.quantityDelta); const reason = clean(body?.reason, 80); const note = clean(body?.note, 500);
+    if (!Number.isInteger(delta) || delta === 0 || Math.abs(delta) > 100000 || !reason) return json({ error: "Provide a non-zero whole-unit adjustment and reason" }, 422, request, env);
+    const product = await env.COMMERCE.prepare("SELECT id, stock, low_stock_threshold FROM products WHERE id = ?").bind(id).first<{ id: number; stock: number; low_stock_threshold: number }>();
+    if (!product) return json({ error: "Product not found" }, 404, request, env);
+    const resulting = product.stock + delta; if (resulting < 0) return json({ error: "This adjustment would make stock negative" }, 422, request, env);
+    await env.COMMERCE.batch([
+      env.COMMERCE.prepare("UPDATE products SET stock = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?").bind(resulting, id),
+      env.COMMERCE.prepare("INSERT INTO inventory_adjustments (product_id, previous_stock, quantity_delta, resulting_stock, reason, note) VALUES (?, ?, ?, ?, ?, ?)").bind(id, product.stock, delta, resulting, reason, note),
+    ]);
+    return json({ id, previousStock: product.stock, quantityDelta: delta, resultingStock: resulting }, 200, request, env);
   }
   if (url.pathname === "/api/admin/products" && request.method === "POST") {
     const body = await readPayload(request); if (!body) return json({ error: "Invalid product payload" }, 400, request, env);
