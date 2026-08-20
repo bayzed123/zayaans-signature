@@ -11,7 +11,9 @@ type AdminOrder = {
   id: number; order_no: string; customer_name: string; customer_phone: string; status: string; total_minor: number;
   courier_consignment_id?: string | null; courier_tracking_code?: string | null; courier_status?: string | null;
 };
-type Tab = "overview" | "products" | "categories" | "orders";
+type Tab = "overview" | "products" | "inventory" | "categories" | "orders";
+type InventoryRow = { id: number; name: string; sku: string; stock: number; low_stock_threshold: number; status: string; sold_qty: number };
+type InventoryAdjustment = { id: number; product_id: number; product_name: string; previous_stock: number; quantity_delta: number; resulting_stock: number; reason: string; note: string; created_at: string };
 type CategoryEditorValues = Pick<Category, "name" | "description" | "imageUrl" | "sortOrder" | "parentLabel" | "audience" | "status">;
 type ProductForm = {
   name: string; sku: string; categoryId: string; summary: string; description: string; fabric: string; leadTime: string; sizeGuide: string;
@@ -41,6 +43,9 @@ export default function Admin() {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [orders, setOrders] = useState<AdminOrder[]>([]);
+  const [inventory, setInventory] = useState<InventoryRow[]>([]);
+  const [adjustments, setAdjustments] = useState<InventoryAdjustment[]>([]);
+  const [inventoryAction, setInventoryAction] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [productEditorOpen, setProductEditorOpen] = useState(false);
   const [form, setForm] = useState<ProductForm>(blankProduct);
@@ -52,13 +57,14 @@ export default function Admin() {
     if (!activeToken) return;
     setLoading(true);
     try {
-      const [nextOverview, nextProducts, nextCategories, nextOrders] = await Promise.all([
+      const [nextOverview, nextProducts, nextCategories, nextOrders, nextInventory] = await Promise.all([
         adminRequest<Overview>("/api/admin/overview", activeToken),
         adminRequest<{ products: Product[] }>("/api/admin/products", activeToken),
         adminRequest<{ categories: Category[] }>("/api/admin/categories", activeToken),
         adminRequest<{ orders: AdminOrder[] }>("/api/admin/orders", activeToken),
+        adminRequest<{ inventory: InventoryRow[]; adjustments: InventoryAdjustment[] }>("/api/admin/inventory", activeToken),
       ]);
-      setOverview(nextOverview); setProducts(nextProducts.products); setCategories(nextCategories.categories); setOrders(nextOrders.orders);
+      setOverview(nextOverview); setProducts(nextProducts.products); setCategories(nextCategories.categories); setOrders(nextOrders.orders); setInventory(nextInventory.inventory); setAdjustments(nextInventory.adjustments);
     } catch (error) {
       sessionStorage.removeItem(TOKEN_KEY); setToken("");
       toast("Administrator session ended.", { description: error instanceof Error ? error.message : "Please sign in again." });
@@ -161,9 +167,16 @@ export default function Admin() {
     finally { setCourierAction(null); }
   }
 
+  async function adjustInventory(id: number, quantityDelta: number, reason: string, note: string) {
+    setInventoryAction(String(id));
+    try { await adminRequest(`/api/admin/products/${id}/inventory`, token, { method: "POST", body: JSON.stringify({ quantityDelta, reason, note }) }); toast("Inventory adjusted."); await refresh(); }
+    catch (error) { toast("We could not adjust inventory.", { description: error instanceof Error ? error.message : "Review the quantity and reason." }); }
+    finally { setInventoryAction(null); }
+  }
+
   if (!token) return <AdminLogin username={username} password={password} setUsername={setUsername} setPassword={setPassword} loading={loading} onSubmit={login} />;
   const tabs: Array<{ id: Tab; label: string; icon: typeof BarChart3 }> = [
-    { id: "overview", label: "Overview", icon: BarChart3 }, { id: "products", label: "Products", icon: Boxes },
+    { id: "overview", label: "Overview", icon: BarChart3 }, { id: "products", label: "Products", icon: Boxes }, { id: "inventory", label: "Inventory", icon: ClipboardList },
     { id: "categories", label: "Categories", icon: Tags }, { id: "orders", label: "Orders", icon: ClipboardList },
   ];
   const activeTab = tabs.find((item) => item.id === tab);
@@ -181,6 +194,7 @@ export default function Admin() {
       {loading && <BrandedLoading size="compact" label={LOADING_COPY.admin} className="mt-6 justify-start border-0 bg-transparent px-0" />}
       {tab === "overview" && <OverviewPanel overview={overview} openProductEditor={() => openProductEditor()} />}
       {tab === "products" && <><ProductPanel form={form} setForm={setForm} categories={categories} products={products} editingId={editingId} editorOpen={productEditorOpen} openEditor={openProductEditor} closeEditor={closeProductEditor} save={saveProduct} /><ProductGovernancePanel products={products} save={saveProductMerchandising} remove={deleteProduct} action={productGovernanceAction} /></>}
+      {tab === "inventory" && <InventoryPanel inventory={inventory} adjustments={adjustments} adjust={adjustInventory} action={inventoryAction} />}
       {tab === "categories" && <CategoryPanel categories={categories} create={createCategory} save={saveCategory} remove={deleteCategory} action={categoryAction} />}
       {tab === "orders" && <OrderPanel orders={orders} updateOrder={updateOrder} createCourierConsignment={createCourierConsignment} refreshCourierStatus={refreshCourierStatus} courierAction={courierAction} />}
     </main>
@@ -193,6 +207,15 @@ function AdminLogin({ username, password, setUsername, setPassword, loading, onS
 
 function OverviewPanel({ overview, openProductEditor }: { overview: Overview | null; openProductEditor: () => void }) {
   return <section className="mt-8"><div className="border border-[#8f6b2c]/35 bg-[#171512] p-6 text-white sm:p-8"><p className="font-ui text-[9px] font-bold uppercase tracking-[.2em] text-[--gold]">Product management</p><div className="mt-3 flex flex-wrap items-end justify-between gap-5"><div><h2 className="font-display text-4xl">Ready to add a new piece?</h2><p className="mt-2 max-w-xl font-ui text-sm leading-6 text-white/60">Open the product editor to set the category, price, stock, image URLs and fashion information before publishing.</p></div><button onClick={openProductEditor} className="inline-flex min-h-12 items-center gap-2 bg-[--gold] px-5 font-ui text-[10px] font-bold uppercase tracking-[.16em] text-black"><PackagePlus size={16} /> Add product</button></div></div><div className="mt-4 grid gap-4 md:grid-cols-3">{[{ label: "Published pieces", value: overview?.productCount ?? 0 }, { label: "Open orders", value: overview?.openOrders ?? 0 }, { label: "Low stock alerts", value: overview?.lowStock ?? 0 }].map((card) => <article key={card.label} className="border border-black/12 bg-[#f8f4ed] p-6"><p className="font-ui text-[10px] font-bold uppercase tracking-[.16em] text-black/50">{card.label}</p><p className="mt-5 font-display text-6xl leading-none text-[#8f6b2c]">{card.value}</p></article>)}</div></section>;
+}
+
+function InventoryPanel({ inventory, adjustments, adjust, action }: { inventory: InventoryRow[]; adjustments: InventoryAdjustment[]; adjust: (id: number, quantityDelta: number, reason: string, note: string) => void; action: string | null }) {
+  const [selectedId, setSelectedId] = useState<number | null>(null); const [quantity, setQuantity] = useState("1"); const [reason, setReason] = useState("restock"); const [note, setNote] = useState("");
+  const selected = inventory.find((item) => item.id === selectedId) ?? inventory[0] ?? null;
+  useEffect(() => { if (selected) setSelectedId(selected.id); }, [selected?.id]);
+  if (!selected) return <section className="mt-8 border border-black/12 bg-[#f8f4ed] p-7"><p className="font-ui text-sm text-black/55">No inventory records are available.</p></section>;
+  const low = selected.stock <= selected.low_stock_threshold; const delta = Number(quantity) || 0;
+  return <section className="mt-8 grid gap-8 xl:grid-cols-[.8fr_1.2fr]"><div className="h-fit border border-[#8f6b2c]/35 bg-[#f8f4ed] p-5 sm:p-7"><p className="font-ui text-[9px] font-bold uppercase tracking-[.19em] text-[#8f6b2c]">Stock adjustment</p><h2 className="mt-2 font-display text-4xl">Inventory control</h2><Select label="Product" value={String(selected.id)} onChange={(value) => setSelectedId(Number(value))} options={inventory.map((item) => ({ value: String(item.id), label: `${item.name} (${item.sku})` }))} /><Input label="Quantity change" type="number" value={quantity} onChange={setQuantity} /><Select label="Reason" value={reason} onChange={setReason} options={[{ value: "restock", label: "Restock" }, { value: "correction", label: "Stock correction" }, { value: "damage", label: "Damage / loss" }, { value: "return", label: "Return to stock" }]} /><TextArea label="Internal note" value={note} onChange={setNote} rows={2} /><div className="mt-5 border-t border-black/12 pt-4 font-ui text-xs text-black/60"><p>Available now: <strong>{selected.stock}</strong></p><p className="mt-1">Low-stock threshold: <strong>{selected.low_stock_threshold}</strong></p></div><div className="mt-5 grid gap-3 sm:grid-cols-2"><button type="button" disabled={!delta || action === String(selected.id)} onClick={() => adjust(selected.id, Math.abs(delta), reason, note)} className="gold-button min-h-11 justify-center disabled:opacity-50">Add stock</button><button type="button" disabled={!delta || action === String(selected.id)} onClick={() => adjust(selected.id, -Math.abs(delta), reason, note)} className="min-h-11 border border-red-900/45 px-3 font-ui text-[9px] font-bold uppercase tracking-[.12em] text-red-900 hover:bg-red-900 hover:text-white disabled:opacity-50">Remove stock</button></div></div><div className="border border-black/12 bg-[#f8f4ed] p-5 sm:p-7"><div className="flex items-end justify-between gap-3"><div><p className="font-ui text-[9px] font-bold uppercase tracking-[.19em] text-[#8f6b2c]">Inventory report</p><h2 className="mt-2 font-display text-4xl">Available &amp; sold</h2></div><span className={`border px-2 py-1 font-ui text-[8px] font-bold uppercase tracking-[.14em] ${low ? "border-red-900/40 text-red-900" : "border-emerald-800/30 text-emerald-800"}`}>{low ? "Needs attention" : "Healthy"}</span></div><div className="mt-6 divide-y divide-black/10">{inventory.map((item) => <article key={item.id} className="flex items-center justify-between gap-4 py-4"><div><p className="font-display text-xl leading-none">{item.name}</p><p className="mt-1 font-ui text-[9px] uppercase tracking-[.12em] text-black/48">{item.sku} · sold {item.sold_qty}</p></div><p className={`font-ui text-xs font-bold ${item.stock <= item.low_stock_threshold ? "text-red-900" : "text-black/70"}`}>{item.stock} available</p></article>)}</div><div className="mt-7 border-t border-black/12 pt-5"><p className="font-ui text-[9px] font-bold uppercase tracking-[.16em] text-[#8f6b2c]">Recent adjustments</p><div className="mt-3 space-y-2">{adjustments.slice(0, 8).map((item) => <p key={item.id} className="font-ui text-xs text-black/58"><strong>{item.product_name}</strong>: {item.previous_stock} → {item.resulting_stock} ({item.quantity_delta > 0 ? "+" : ""}{item.quantity_delta}) · {item.reason}</p>)}{!adjustments.length && <p className="font-ui text-xs text-black/45">No manual adjustments recorded yet.</p>}</div></div></div></section>;
 }
 
 function ProductPanel({ form, setForm, categories, products, editingId, editorOpen, openEditor, closeEditor, save }: { form: ProductForm; setForm: (value: ProductForm) => void; categories: Category[]; products: Product[]; editingId: number | null; editorOpen: boolean; openEditor: (product?: Product) => void; closeEditor: () => void; save: (event: FormEvent<HTMLFormElement>) => void }) {
