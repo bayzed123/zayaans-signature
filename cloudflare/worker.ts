@@ -440,6 +440,14 @@ async function adminRoute(request: Request, env: Env, url: URL): Promise<Respons
     const { results } = await env.COMMERCE.prepare("SELECT id, order_no, customer_name, customer_phone, status, total_minor, created_at, courier_consignment_id, courier_tracking_code, courier_status FROM orders ORDER BY id DESC LIMIT 200").all();
     return json({ orders: results ?? [] }, 200, request, env);
   }
+  const orderTimelineMatch = url.pathname.match(/^\/api\/admin\/orders\/(\d+)\/timeline$/);
+  if (orderTimelineMatch && request.method === "GET") {
+    const id = Number(orderTimelineMatch[1]);
+    const order = await env.COMMERCE.prepare("SELECT id FROM orders WHERE id = ?").bind(id).first<{ id: number }>();
+    if (!order) return json({ error: "Order not found" }, 404, request, env);
+    const { results } = await env.COMMERCE.prepare("SELECT id, status, note, created_at FROM order_events WHERE order_id = ? ORDER BY id DESC LIMIT 100").bind(id).all();
+    return json({ orderId: id, events: results ?? [] }, 200, request, env);
+  }
   const courierCreateMatch = url.pathname.match(/^\/api\/admin\/orders\/(\d+)\/courier$/);
   if (courierCreateMatch && request.method === "POST") {
     const id = Number(courierCreateMatch[1]);
