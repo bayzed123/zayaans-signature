@@ -2,11 +2,11 @@
   "version": 1,
   "purpose": "Fallback and category-card imagery for the live Zayaan’s Signature taxonomy.",
   "assets": {
-    "womensWardrobe": "https://raw.githubusercontent.com/bayzed123/Fashion-Design-Architecture-/main/public/product-1.jpg",
-    "kidsFamily": "https://raw.githubusercontent.com/bayzed123/Fashion-Design-Architecture-/main/public/product-2.jpg",
-    "teensNewborn": "https://raw.githubusercontent.com/bayzed123/Fashion-Design-Architecture-/main/public/product-3.jpg",
-    "nargisusEthnic": "https://raw.githubusercontent.com/bayzed123/Fashion-Design-Architecture-/main/public/product-4.jpg",
-    "dailyLife": "https://raw.githubusercontent.com/bayzed123/Fashion-Design-Architecture-/main/public/product-5.jpg"
+    "womensWardrobe": "/zayaans-signature/images/catalogue/womens-wardrobe.jpg",
+    "kidsFamily": "/zayaans-signature/images/catalogue/kids-family.jpg",
+    "teensNewborn": "/zayaans-signature/images/catalogue/teens-newborn.jpg",
+    "nargisusEthnic": "/zayaans-signature/images/catalogue/nargisus-ethnic.jpg",
+    "dailyLife": "/zayaans-signature/images/catalogue/daily-life.jpg"
   },
   "rules": [
     { "whenSlugOrParentContains": ["nargisus"], "asset": "nargisusEthnic" },

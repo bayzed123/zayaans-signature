@@ -5,12 +5,14 @@ export type CategoryImageTarget = {
 };
 
 /** Managed fallback imagery ensures new or uncustomised categories never render blank. */
+const catalogueAsset = (filename: string) => `${import.meta.env.BASE_URL}images/catalogue/${filename}`;
+
 export const CATEGORY_IMAGE_ASSETS = {
-  womensWardrobe: "https://raw.githubusercontent.com/bayzed123/Fashion-Design-Architecture-/main/public/product-1.jpg",
-  kidsFamily: "https://raw.githubusercontent.com/bayzed123/Fashion-Design-Architecture-/main/public/product-2.jpg",
-  teensNewborn: "https://raw.githubusercontent.com/bayzed123/Fashion-Design-Architecture-/main/public/product-3.jpg",
-  nargisusEthnic: "https://raw.githubusercontent.com/bayzed123/Fashion-Design-Architecture-/main/public/product-4.jpg",
-  dailyLife: "https://raw.githubusercontent.com/bayzed123/Fashion-Design-Architecture-/main/public/product-5.jpg",
+  womensWardrobe: catalogueAsset("womens-wardrobe.jpg"),
+  kidsFamily: catalogueAsset("kids-family.jpg"),
+  teensNewborn: catalogueAsset("teens-newborn.jpg"),
+  nargisusEthnic: catalogueAsset("nargisus-ethnic.jpg"),
+  dailyLife: catalogueAsset("daily-life.jpg"),
 } as const;
 
 export function categoryImage(target: CategoryImageTarget): string {

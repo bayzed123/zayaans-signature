@@ -85,3 +85,10 @@
 - [x] Verify the public category imagery, product images, administrator image field, and GitHub Actions deployment after publication.
 - [x] Verify the live collection renders non-blank category cards and product images after the stable image-source release.
 - [x] Verify the deployed private administrator dashboard exposes the product image URL guidance and category image save controls.
+
+## Project-Owned Public Image Migration
+
+- [ ] Audit all active product and category image URLs for external or non-project-owned references.
+- [ ] Copy the approved catalogue imagery into `client/public/images/catalogue/` and register the project-owned asset paths in the repository manifests.
+- [ ] Replace all storefront, category, product, and live D1 image references with the GitHub Pages project asset paths.
+- [ ] Verify every active product and category image loads from the Zayaan’s Signature repository on the live storefront and private dashboard.
