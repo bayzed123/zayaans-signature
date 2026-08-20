@@ -4,7 +4,7 @@
  */
 import { Menu, MessageCircle, ShoppingBag, X } from "lucide-react";
 import { useState } from "react";
-import { Link } from "wouter";
+import { SiteLink as Link } from "@/components/SiteLink";
 import { useCart } from "@/contexts/CartContext";
 
 const whatsappUrl = "https://wa.me/8801750858257?text=Hello%20Zayaan%27s%20Signature%2C%20I%20would%20like%20to%20enquire%20about%20a%20signature%20piece.";

@@ -5,7 +5,7 @@
 import { ArrowDown, ArrowUpRight, Facebook, Instagram, Mail, MessageCircle, Sparkles } from "lucide-react";
 import { FormEvent, useState } from "react";
 import { toast } from "sonner";
-import { Link } from "wouter";
+import { SiteLink as Link } from "@/components/SiteLink";
 import FashionHeader from "@/components/FashionHeader";
 import FeaturedCollection from "@/components/FeaturedCollection";
 

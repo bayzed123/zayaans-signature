@@ -4,6 +4,7 @@ import { commerceRequest, formatBdt, productImage, type Product } from "@/lib/co
 import { ArrowLeft, Check, ChevronRight, Loader2, MessageCircle, ShoppingBag } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useLocation, useRoute } from "wouter";
+import { SiteLink, sitePath } from "@/components/SiteLink";
 import { toast } from "sonner";
 
 const whatsapp = "https://wa.me/8801750858257";
@@ -45,7 +46,7 @@ export default function ProductDetail() {
   };
   const shopNow = () => {
     add(product, { size, colour });
-    navigate("/cart");
+    window.location.assign(sitePath("/cart"));
   };
   const tryOnMessage = encodeURIComponent(`Hello Zayaan's Signature, I would like an online try-on or size consultation for ${product.name} (${product.sku}).`);
   const availabilityMessage = encodeURIComponent(`Hello Zayaan's Signature, please check store availability for ${product.name} (${product.sku}).`);
@@ -55,7 +56,7 @@ export default function ProductDetail() {
       <FashionHeader />
       <main className="pt-[76px]">
         <div className="mx-auto max-w-[1440px] px-5 py-8 sm:px-8 lg:px-12">
-          <Link href="/collection" className="inline-flex items-center gap-2 font-ui text-[10px] font-bold uppercase tracking-[.18em] text-black/60 hover:text-[#8f6b2c]"><ArrowLeft size={14} /> Return to collection</Link>
+          <SiteLink href="/collection" className="inline-flex items-center gap-2 font-ui text-[10px] font-bold uppercase tracking-[.18em] text-black/60 hover:text-[#8f6b2c]"><ArrowLeft size={14} /> Return to collection</SiteLink>
           <div className="mt-8 grid gap-9 lg:grid-cols-[1.12fr_.88fr] lg:gap-16">
             <div className="grid gap-4 sm:grid-cols-2">
               {images.map((image, index) => <img key={`${image}-${index}`} src={image} alt={`${product.name} ${index + 1}`} className={`w-full bg-[#ded6ca] object-cover ${index === 0 ? "sm:col-span-2 aspect-[1.1/1]" : "aspect-[4/5]"}`} />)}
@@ -104,7 +105,7 @@ export default function ProductDetail() {
 }
 
 function LoadingProduct() { return <div className="min-h-screen bg-[#f5f2ec]"><FashionHeader /><div className="grid min-h-screen place-items-center"><Loader2 className="animate-spin text-[#8f6b2c]" /></div></div>; }
-function UnavailableProduct({ error }: { error: string }) { return <div className="min-h-screen bg-[#f5f2ec]"><FashionHeader /><main className="grid min-h-screen place-items-center px-6 text-center"><div><h1 className="font-display text-5xl">This piece is unavailable.</h1><p className="mt-4 font-ui text-sm text-black/60">{error || "It may have moved out of the active collection."}</p><Link href="/collection" className="gold-button mt-8">Back to the collection</Link></div></main></div>; }
+function UnavailableProduct({ error }: { error: string }) { return <div className="min-h-screen bg-[#f5f2ec]"><FashionHeader /><main className="grid min-h-screen place-items-center px-6 text-center"><div><h1 className="font-display text-5xl">This piece is unavailable.</h1><p className="mt-4 font-ui text-sm text-black/60">{error || "It may have moved out of the active collection."}</p><SiteLink href="/collection" className="gold-button mt-8">Back to the collection</SiteLink></div></main></div>; }
 function DetailLine({ label, value }: { label: string; value: string }) { return <div className="flex justify-between gap-6"><dt className="font-bold uppercase tracking-[.15em] text-black/47">{label}</dt><dd className="text-right">{value}</dd></div>; }
 function VariantPicker({ label, options, selected, onSelect }: { label: string; options: string[]; selected: string; onSelect: (value: string) => void }) { return <fieldset className="mt-7"><legend className="font-ui text-[10px] font-bold uppercase tracking-[.18em]">{label}</legend><div className="mt-3 flex flex-wrap gap-2">{options.map((option) => <button key={option} onClick={() => onSelect(option)} className={`min-w-12 border px-4 py-3 font-ui text-xs ${selected === option ? "border-black bg-black text-white" : "border-black/20 hover:border-[#8f6b2c]"}`}>{option}</button>)}</div></fieldset>; }
 function DetailBlock({ title, children }: { title: string; children: React.ReactNode }) { return <section className="border-b border-black/10 py-6"><h2 className="font-ui text-[10px] font-bold uppercase tracking-[.18em]">{title}</h2><div className="mt-4 font-ui text-sm leading-7 text-black/64">{children}</div></section>; }

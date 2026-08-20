@@ -1,7 +1,7 @@
 import { commerceRequest, formatBdt, productImage, type Product } from "@/lib/commerce";
 import { ArrowRight, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Link } from "wouter";
+import { SiteLink as Link } from "@/components/SiteLink";
 
 export default function FeaturedCollection() {
   const [products, setProducts] = useState<Product[]>([]);

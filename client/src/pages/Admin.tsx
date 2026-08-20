@@ -1,7 +1,7 @@
 import { API_BASE, commerceRequest, formatBdt, productImage, type Category, type Product } from "@/lib/commerce";
 import { BarChart3, Boxes, ChevronRight, ClipboardList, Loader2, LockKeyhole, PackagePlus, Tags } from "lucide-react";
 import { FormEvent, useEffect, useState } from "react";
-import { Link } from "wouter";
+import { SiteLink as Link } from "@/components/SiteLink";
 import { toast } from "sonner";
 
 type Overview = { productCount: number; openOrders: number; lowStock: number };

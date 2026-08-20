@@ -1,7 +1,8 @@
 import FashionHeader from "@/components/FashionHeader";
 import { commerceRequest, formatBdt, productImage, type Category, type Product } from "@/lib/commerce";
 import { ArrowRight, Loader2, ShoppingBag } from "lucide-react";
-import { Link, useRoute } from "wouter";
+import { SiteLink as Link } from "@/components/SiteLink";
+import { useRoute } from "wouter";
 import { useEffect, useState } from "react";
 
 type CatalogueResponse = { products: Product[]; categories: Category[] };
