@@ -75,3 +75,11 @@
 - [x] Verify the public storefront visuals and the unchanged administrator entry after deployment.
 - [x] Retain the crisp brand-owned SVG monogram rather than expose an unfinished generated logo concept in the customer-facing header.
 - [x] Publish the corrected visible monogram and verify the live homepage, collection, and private administrator entry.
+
+## Repository Asset Library and Catalogue Images
+
+- [ ] Inspect the live commerce categories, products, image fields, and existing deployment workflow before extending asset management.
+- [ ] Create a GitHub-tracked `admin-assets` directory with a documented product/category image manifest that maps durable hosted image URLs to the store catalogue.
+- [ ] Provide a non-blank managed image reference for every existing category and clearly labelled demonstration products where catalogue coverage is needed.
+- [ ] Extend the administrator’s existing image-URL workflow with clear asset-library guidance without changing authentication or order-management behaviour.
+- [ ] Verify the public category imagery, product images, administrator image field, and GitHub Actions deployment after publication.

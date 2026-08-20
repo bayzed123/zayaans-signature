@@ -251,6 +251,22 @@ async function adminRoute(request: Request, env: Env, url: URL): Promise<Respons
     if (!name || !slug) return json({ error: "Category name is required" }, 422, request, env);
     try { const inserted = await env.COMMERCE.prepare("INSERT INTO categories (name, slug, description, image_url, sort_order, parent_label, audience) VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING id").bind(name, slug, clean(body?.description, 500), clean(body?.imageUrl, 500), Number(body?.sortOrder) || 0, clean(body?.parentLabel, 120), clean(body?.audience, 20) || "women").first<{ id: number }>(); return json({ id: inserted?.id, name, slug }, 201, request, env); } catch { return json({ error: "That category already exists" }, 409, request, env); }
   }
+  const categoryMatch = url.pathname.match(/^\/api\/admin\/categories\/(\d+)$/);
+  if (categoryMatch && request.method === "PATCH") {
+    const id = Number(categoryMatch[1]); const body = await readPayload(request); const imageUrl = clean(body?.imageUrl, 500);
+    const current = await env.COMMERCE.prepare("SELECT id FROM categories WHERE id = ?").bind(id).first<{ id: number }>();
+    if (!current) return json({ error: "Category not found" }, 404, request, env);
+    await env.COMMERCE.prepare("UPDATE categories SET image_url = ? WHERE id = ?").bind(imageUrl, id).run();
+    return json({ id, imageUrl }, 200, request, env);
+  }
+  const categoryMatch = url.pathname.match(/^\/api\/admin\/categories\/(\d+)$/);
+  if (categoryMatch && request.method === "PATCH") {
+    const id = Number(categoryMatch[1]); const body = await readPayload(request); const imageUrl = clean(body?.imageUrl, 500);
+    const current = await env.COMMERCE.prepare("SELECT id FROM categories WHERE id = ?").bind(id).first<{ id: number }>();
+    if (!current) return json({ error: "Category not found" }, 404, request, env);
+    await env.COMMERCE.prepare("UPDATE categories SET image_url = ? WHERE id = ?").bind(imageUrl, id).run();
+    return json({ id, imageUrl }, 200, request, env);
+  }
   if (url.pathname === "/api/admin/products" && request.method === "GET") {
     const { results } = await env.COMMERCE.prepare("SELECT p.*, c.name AS category_name FROM products p LEFT JOIN categories c ON c.id = p.category_id ORDER BY p.updated_at DESC").all<ProductRow>();
     return json({ products: (results ?? []).map(mapProduct) }, 200, request, env);
