@@ -21,7 +21,7 @@ type ProductRow = {
   image_url: string; gallery_json: string; price_minor: number; compare_at_minor: number;
   vat_note: string; fit_info: string; wash_care: string; availability_note: string; try_on_enabled: number;
   brand: string; is_new_arrival: number; is_offer: number; is_best_seller: number;
-  stock: number; status: string; featured: number; created_at: string; updated_at: string;
+  stock: number; low_stock_threshold: number; status: string; featured: number; created_at: string; updated_at: string;
 };
 
 type CategoryRow = {
@@ -150,7 +150,7 @@ function mapProduct(row: ProductRow) {
     vatNote: row.vat_note, fitInfo: row.fit_info, washCare: row.wash_care,
     availabilityNote: row.availability_note, tryOnEnabled: Boolean(row.try_on_enabled), brand: row.brand ?? "",
     isNewArrival: Boolean(row.is_new_arrival), isOffer: Boolean(row.is_offer), isBestSeller: Boolean(row.is_best_seller),
-    stock: row.stock, status: row.status, featured: Boolean(row.featured), createdAt: row.created_at,
+    stock: row.stock, lowStockThreshold: row.low_stock_threshold ?? 3, status: row.status, featured: Boolean(row.featured), createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
 }

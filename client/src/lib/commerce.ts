@@ -44,6 +44,7 @@ export type Product = {
   isOffer: boolean;
   isBestSeller: boolean;
   stock: number;
+  lowStockThreshold?: number;
   status: "draft" | "active" | "archived";
   featured: boolean;
   createdAt: string;
