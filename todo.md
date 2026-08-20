@@ -70,5 +70,5 @@
 - [x] Select or create premium visual assets suitable for Zayaan’s Signature without copying the reference brand identity.
 - [x] Apply the selected logo and storefront product-image presentation without modifying the administrator system.
 - [x] Verify the public storefront visuals and the unchanged administrator entry after deployment.
-- [ ] Confirm the generated Zayaan’s Signature monogram resolves successfully and remains brand-safe at storefront header size.
-- [ ] Publish the storefront visual refresh and verify the live homepage, collection, and private administrator entry.
+- [ ] Confirm the replacement generated Zayaan’s Signature monogram resolves successfully and remains brand-safe at storefront header size.
+- [ ] Publish the replacement monogram and verify the live homepage, collection, and private administrator entry.
