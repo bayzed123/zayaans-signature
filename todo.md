@@ -134,11 +134,11 @@
 - [x] Task 05b — Add a category lifecycle status field and protected full category editing for hierarchy, audience, description, ordering, and status.
 - [x] Task 05c — Add guarded category deletion that protects categories referenced by products, with explicit private-admin confirmation.
 - [x] Task 05d — Add focused server and rendered-admin regression coverage, then verify responsive desktop and mobile category management before publishing.
-- [ ] Task 06 — Upgrade the product-detail experience with an accessible image gallery and zoom, discount presentation, stock state, related-product discovery, share support, and only legitimate review handling.
+- [x] Task 06 — Upgrade the product-detail experience with an accessible image gallery and zoom, discount presentation, stock state, related-product discovery, share support, and only legitimate review handling.
 - [x] Task 06a — Audit existing product-detail data, gallery sources, stock and price states, customer actions, and available legitimate related-product signals.
-- [ ] Task 06b — Add an accessible project-owned product image gallery, zoom dialog, transparent discount and stock presentation, and share support without fabricating reviews.
-- [ ] Task 06c — Add related-product discovery using only active products in the same assigned category and make sold-out states unavailable for purchase.
-- [ ] Task 06d — Add focused customer-flow regression coverage, then verify product-detail behavior on desktop and mobile before publishing.
+- [x] Task 06b — Add an accessible project-owned product image gallery, zoom dialog, transparent discount and stock presentation, and share support without fabricating reviews.
+- [x] Task 06c — Add related-product discovery using only active products in the same assigned category and make sold-out states unavailable for purchase.
+- [x] Task 06d — Add focused customer-flow regression coverage, then verify product-detail behavior on desktop and mobile before publishing.
 - [ ] Task 07 — Add server-backed catalogue search, filtering, and sorting for product name, SKU, category, brand, availability, price, promotion, and stock-aware results.
 - [ ] Task 08 — Validate and improve cart and checkout totals, delivery information, payment method display, and stock-aware quantity rules.
 - [ ] Task 09 — Implement inventory lifecycle management: available and sold quantities, low-stock/out-of-stock alerts, adjustment history, and stock reporting.
