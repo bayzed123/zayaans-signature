@@ -11,3 +11,8 @@ ALLOWED_ORIGIN = "https://bayzed123.github.io"
 binding = "NEWSLETTER"
 database_name = "zayaans-signature-newsletter"
 database_id = "ad1c0c18-5711-4ede-b15e-be289963875d"
+
+[[d1_databases]]
+binding = "COMMERCE"
+database_name = "zayaans-signature-commerce"
+database_id = "65dc692a-4a93-4a9e-8965-a051b7f327ab"

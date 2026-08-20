@@ -6,20 +6,14 @@ import { ArrowDown, ArrowUpRight, Facebook, Instagram, Mail, MessageCircle, Spar
 import { FormEvent, useState } from "react";
 import { toast } from "sonner";
 import FashionHeader from "@/components/FashionHeader";
+import FeaturedCollection from "@/components/FeaturedCollection";
 
 const appBase = import.meta.env.BASE_URL;
 const campaignAssetBase = "https://raw.githubusercontent.com/bayzed123/zayaans-signature/main/client/public/images/";
 const heroImage = `${campaignAssetBase}zayaans-hero.jpg`;
-const collectionImage = `${campaignAssetBase}zayaans-collection-01.jpg`;
 const lookbookImage = `${campaignAssetBase}zayaans-lookbook-01.jpg`;
 const whatsapp = "https://wa.me/8801750858257";
 const facebook = "https://www.facebook.com/share/1DbpHnT9DS/?mibextid=wwXIfr";
-
-const products = [
-  { number: "01", name: "Noor Atelier", detail: "Embroidered Formal", tone: "ivory" },
-  { number: "02", name: "Aurelia Drape", detail: "Evening Signature", tone: "black" },
-  { number: "03", name: "Rouge Reverie", detail: "Occasion Edit", tone: "ruby" },
-];
 
 function productEnquiry(name: string) {
   return `${whatsapp}?text=${encodeURIComponent(`Hello Zayaan's Signature, I would like to enquire about ${name}.`)}`;
@@ -70,7 +64,7 @@ export default function Home() {
                 Modern occasionwear with a quiet command of craft. Every Zayaan’s Signature piece begins with an individual point of view.
               </p>
               <div className="reveal reveal-4 mt-10 flex flex-wrap gap-3">
-                <a href="#collection" className="gold-button">Discover the collection <ArrowDown size={15} strokeWidth={1.7} /></a>
+                <a href="/collection" className="gold-button">Shop the collection <ArrowDown size={15} strokeWidth={1.7} /></a>
                 <a href={productEnquiry("a custom signature piece")} target="_blank" rel="noreferrer" className="ghost-button"><MessageCircle size={16} strokeWidth={1.7} /> Begin an enquiry</a>
               </div>
             </div>
@@ -91,31 +85,7 @@ export default function Home() {
               <p className="max-w-md justify-self-end font-ui text-sm leading-7 text-[#55504a]">Designed for the entrance, the close conversation, and the memory after. Explore a concise edit shaped around fabric, fall, and fine finishing.</p>
             </div>
 
-            <div className="mt-16 grid gap-5 lg:grid-cols-[1.2fr_.8fr_.8fr]">
-              <article className="product-card group min-h-[520px] lg:min-h-[630px]" style={{ backgroundImage: `url(${collectionImage})` }}>
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/8 to-transparent" />
-                <div className="relative z-10 flex h-full flex-col justify-between p-6 sm:p-8">
-                  <span className="font-ui text-[10px] font-bold tracking-[.25em] text-[--gold]">01 / THE ATELIER</span>
-                  <div>
-                    <p className="font-ui text-[10px] uppercase tracking-[.2em] text-white/65">Embroidered formal</p>
-                    <h3 className="mt-2 font-display text-5xl tracking-[-.04em] text-white">Noor Atelier</h3>
-                    <a className="mt-5 inline-flex items-center gap-2 font-ui text-[10px] font-bold uppercase tracking-[.2em] text-white transition-colors hover:text-[--gold]" href={productEnquiry("Noor Atelier")} target="_blank" rel="noreferrer">Enquire <ArrowUpRight size={15} /></a>
-                  </div>
-                </div>
-              </article>
-              {products.slice(1).map((product) => (
-                <article key={product.number} className={`product-card product-card--${product.tone} group min-h-[360px] lg:min-h-[630px]`}>
-                  <div className="relative z-10 flex h-full flex-col justify-between p-6 sm:p-7">
-                    <span className="font-ui text-[10px] font-bold tracking-[.25em] text-[--gold]">{product.number} / SIGNATURE</span>
-                    <div>
-                      <p className="font-ui text-[10px] uppercase tracking-[.2em] text-white/65">{product.detail}</p>
-                      <h3 className="mt-2 font-display text-[2.75rem] leading-none tracking-[-.04em] text-white">{product.name}</h3>
-                      <a className="mt-5 inline-flex items-center gap-2 font-ui text-[10px] font-bold uppercase tracking-[.2em] text-white transition-colors hover:text-[--gold]" href={productEnquiry(product.name)} target="_blank" rel="noreferrer">Enquire <ArrowUpRight size={15} /></a>
-                    </div>
-                  </div>
-                </article>
-              ))}
-            </div>
+            <FeaturedCollection />
           </div>
         </section>
 
