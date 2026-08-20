@@ -94,3 +94,35 @@
 - [x] Verify every active product and category image loads from the Zayaan’s Signature repository on the live storefront and private dashboard.
 - [x] Audit all image-bearing D1 records, including non-active products and gallery fields, and remove any remaining non-project-owned references.
 - [x] Force-load the complete live collection image set and confirm every category and product image source is project-owned and fully rendered.
+
+## Steadfast Courier Administration Integration
+
+- [x] Review the supplied Steadfast API contract and map the existing commerce order fields to consignment requirements.
+- [x] Securely configure the Steadfast API credentials without exposing them in source control or the customer-facing application.
+- [x] Add protected server-side consignment creation and delivery-status lookup routes for administrator use.
+- [x] Add private administrator courier controls, consignment references, and delivery-status visibility to order management.
+- [ ] Validate the courier integration without submitting a real shipment or accessing customer data beyond existing test-safe order records.
+
+## One-Task-at-a-Time E-commerce Improvement Roadmap
+
+> Every task below must be completed independently: implement the scoped change, add or update a focused regression test, run the relevant checks, capture desktop and mobile interface verification, commit and push the verified change, then report the task before starting the next one.
+
+- [ ] Task 01 — Complete the existing Steadfast Courier workflow: protected consignment creation, tracking-status synchronisation, and private administrator controls without creating a live shipment.
+- [x] Task 01 verification fix — Make the private Orders courier controls reachable without horizontal-table scrolling on mobile.
+- [ ] Task 02 — Audit and preserve the current light and dark theme behavior, then establish a theme-compatible branded loading system for catalogue, checkout, admin, and courier requests.
+- [ ] Task 03 — Improve customer navigation with responsive desktop and mobile discovery paths for Home, Shop, Categories, Offers, New Arrivals, Best Sellers, Contact, Cart, Wishlist, and Customer Account.
+- [ ] Task 04 — Extend product management for brands, promotional placement flags, richer product media, controlled product deletion, and complete administrator validation.
+- [ ] Task 05 — Extend category management with subcategory hierarchy, category status, edit/delete safeguards, and explicit ordering controls.
+- [ ] Task 06 — Upgrade the product-detail experience with an accessible image gallery and zoom, discount presentation, stock state, related-product discovery, share support, and only legitimate review handling.
+- [ ] Task 07 — Add server-backed catalogue search, filtering, and sorting for product name, SKU, category, brand, availability, price, promotion, and stock-aware results.
+- [ ] Task 08 — Validate and improve cart and checkout totals, delivery information, payment method display, and stock-aware quantity rules.
+- [ ] Task 09 — Implement inventory lifecycle management: available and sold quantities, low-stock/out-of-stock alerts, adjustment history, and stock reporting.
+- [ ] Task 10 — Expand order lifecycle management with clear processing, courier, delivery, cancellation, return, failed-delivery, and refund statuses plus a durable order timeline.
+- [ ] Task 11 — Upgrade the private desktop administrator shell with a top navbar, responsive sidebar behavior, search, profile menu, notification area, and mobile drawer without exposing admin navigation publicly.
+- [ ] Task 12 — Build the administrator dashboard business overview for sales, orders, inventory, customers, and delivery states using data-backed cards, charts, and tables.
+- [ ] Task 13 — Add an administrator courier-management and delivery-tracking workspace around the completed Steadfast integration, including courier references and delivery state visibility.
+- [ ] Task 14 — Add an authenticated customer account area for profile, saved addresses, legitimate order history, delivery tracking, and wishlist management.
+- [ ] Task 15 — Add a secure, opt-in customer notification foundation for order-stage updates; defer third-party SMS, email, or WhatsApp delivery until service credentials and sending policy are confirmed.
+- [ ] Task 16 — Build promotional administration for discounts, coupons, flash sales, offer placement, and homepage promotional content with validation and expiry controls.
+- [ ] Task 17 — Add customer management and business reporting, including sales, orders, product sales, inventory, delivery, cancellation, return, and courier reports with safe CSV/XLSX export where appropriate.
+- [ ] Task 18 — Perform a final security, performance, accessibility, responsive-design, and automation workflow audit across the storefront and private administration system.

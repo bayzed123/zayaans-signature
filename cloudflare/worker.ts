@@ -9,6 +9,8 @@ export interface Env {
   ALLOWED_ORIGIN: string;
   ADMIN_PASSWORD?: string;
   ADMIN_USERNAME?: string;
+  STEADFAST_API_KEY?: string;
+  STEADFAST_SECRET_KEY?: string;
 }
 
 type Payload = Record<string, unknown>;
@@ -22,6 +24,25 @@ type ProductRow = {
 };
 
 const ORDER_STATUSES = ["pending", "confirmed", "preparing", "shipped", "delivered", "cancelled"] as const;
+const STEADFAST_API_BASE = "https://portal.packzy.com/api/v1";
+
+type SteadfastConsignment = {
+  consignment_id?: string | number;
+  tracking_code?: string;
+  status?: string;
+};
+
+type SteadfastCreateResponse = {
+  status?: number;
+  message?: string;
+  consignment?: SteadfastConsignment;
+};
+
+type SteadfastStatusResponse = {
+  status?: number;
+  message?: string;
+  delivery_status?: string;
+};
 
 function corsHeaders(request: Request, env: Env): HeadersInit {
   const origin = request.headers.get("Origin");
@@ -58,6 +79,34 @@ function cleanArray(value: unknown, limit = 20, itemLimit = 80): string[] {
 
 function parseArray(value: string): string[] {
   try { return Array.isArray(JSON.parse(value)) ? JSON.parse(value) : []; } catch { return []; }
+}
+
+function courierErrorMessage(payload: unknown, fallback: string): string {
+  if (payload && typeof payload === "object") {
+    const message = (payload as { message?: unknown }).message;
+    if (typeof message === "string" && message.trim()) return clean(message, 240);
+  }
+  return fallback;
+}
+
+/**
+ * Calls Steadfast only from the Worker. Credentials remain secret bindings and
+ * never enter customer-facing responses, logs, source control, or browser code.
+ */
+export async function steadfastRequest<T>(env: Env, path: string, method: "GET" | "POST", body?: unknown): Promise<T> {
+  if (!env.STEADFAST_API_KEY || !env.STEADFAST_SECRET_KEY) throw new Error("Steadfast Courier is not configured");
+  const response = await fetch(`${STEADFAST_API_BASE}${path}`, {
+    method,
+    headers: {
+      "Api-Key": env.STEADFAST_API_KEY,
+      "Secret-Key": env.STEADFAST_SECRET_KEY,
+      "Content-Type": "application/json",
+    },
+    body: body === undefined ? undefined : JSON.stringify(body),
+  });
+  const payload = await response.json().catch(() => null);
+  if (!response.ok) throw new Error(courierErrorMessage(payload, `Steadfast request failed (${response.status})`));
+  return payload as T;
 }
 
 function slugify(value: string): string {
@@ -283,8 +332,59 @@ async function adminRoute(request: Request, env: Env, url: URL): Promise<Respons
     } catch (error) { return json({ error: error instanceof Error ? error.message : "Unable to update product" }, 422, request, env); }
   }
   if (url.pathname === "/api/admin/orders" && request.method === "GET") {
-    const { results } = await env.COMMERCE.prepare("SELECT id, order_no, customer_name, customer_phone, status, total_minor, created_at FROM orders ORDER BY id DESC LIMIT 200").all();
+    const { results } = await env.COMMERCE.prepare("SELECT id, order_no, customer_name, customer_phone, status, total_minor, created_at, courier_consignment_id, courier_tracking_code, courier_status FROM orders ORDER BY id DESC LIMIT 200").all();
     return json({ orders: results ?? [] }, 200, request, env);
+  }
+  const courierCreateMatch = url.pathname.match(/^\/api\/admin\/orders\/(\d+)\/courier$/);
+  if (courierCreateMatch && request.method === "POST") {
+    const id = Number(courierCreateMatch[1]);
+    const order = await env.COMMERCE.prepare("SELECT id, order_no, customer_name, customer_phone, address, note, total_minor, courier_consignment_id, courier_tracking_code, courier_status FROM orders WHERE id = ?").bind(id).first<{
+      id: number; order_no: string; customer_name: string; customer_phone: string; address: string; note: string; total_minor: number;
+      courier_consignment_id: string | null; courier_tracking_code: string | null; courier_status: string | null;
+    }>();
+    if (!order) return json({ error: "Order not found" }, 404, request, env);
+    if (order.courier_consignment_id || order.courier_tracking_code) return json({ error: "A Steadfast consignment already exists for this order" }, 409, request, env);
+    const recipientPhone = phoneDigits(order.customer_phone);
+    if (!recipientPhone || !order.customer_name || !order.address) return json({ error: "This order is missing recipient details required by Steadfast" }, 422, request, env);
+    try {
+      const courier = await steadfastRequest<SteadfastCreateResponse>(env, "/create_order", "POST", {
+        invoice: order.order_no,
+        recipient_name: clean(order.customer_name, 100),
+        recipient_phone: recipientPhone,
+        recipient_address: clean(order.address, 250),
+        cod_amount: Math.round(order.total_minor) / 100,
+        note: clean(order.note, 500),
+      });
+      const consignmentId = courier.consignment?.consignment_id === undefined || courier.consignment.consignment_id === null ? "" : String(courier.consignment.consignment_id);
+      const trackingCode = clean(courier.consignment?.tracking_code, 120);
+      const courierStatus = clean(courier.consignment?.status, 80);
+      if (!consignmentId || !trackingCode) return json({ error: courierErrorMessage(courier, "Steadfast did not return a consignment reference") }, 502, request, env);
+      await env.COMMERCE.batch([
+        env.COMMERCE.prepare("UPDATE orders SET courier_consignment_id = ?, courier_tracking_code = ?, courier_status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?").bind(consignmentId, trackingCode, courierStatus || "in_review", id),
+        env.COMMERCE.prepare("INSERT INTO order_events (order_id, status, note) VALUES (?, ?, ?)").bind(id, "courier", `Steadfast consignment created: ${trackingCode}`),
+      ]);
+      return json({ id, courierConsignmentId: consignmentId, courierTrackingCode: trackingCode, courierStatus: courierStatus || "in_review" }, 201, request, env);
+    } catch (error) {
+      return json({ error: error instanceof Error ? error.message : "Unable to create the Steadfast consignment" }, 502, request, env);
+    }
+  }
+  const courierStatusMatch = url.pathname.match(/^\/api\/admin\/orders\/(\d+)\/courier-status$/);
+  if (courierStatusMatch && request.method === "GET") {
+    const id = Number(courierStatusMatch[1]);
+    const order = await env.COMMERCE.prepare("SELECT id, order_no, courier_consignment_id, courier_tracking_code FROM orders WHERE id = ?").bind(id).first<{
+      id: number; order_no: string; courier_consignment_id: string | null; courier_tracking_code: string | null;
+    }>();
+    if (!order) return json({ error: "Order not found" }, 404, request, env);
+    if (!order.courier_consignment_id && !order.courier_tracking_code) return json({ error: "Create a Steadfast consignment before refreshing delivery status" }, 409, request, env);
+    try {
+      const courier = await steadfastRequest<SteadfastStatusResponse>(env, `/status_by_invoice/${encodeURIComponent(order.order_no)}`, "GET");
+      const courierStatus = clean(courier.delivery_status, 80);
+      if (!courierStatus) return json({ error: courierErrorMessage(courier, "Steadfast did not return a delivery status") }, 502, request, env);
+      await env.COMMERCE.prepare("UPDATE orders SET courier_status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?").bind(courierStatus, id).run();
+      return json({ id, courierStatus }, 200, request, env);
+    } catch (error) {
+      return json({ error: error instanceof Error ? error.message : "Unable to refresh the Steadfast delivery status" }, 502, request, env);
+    }
   }
   const orderMatch = url.pathname.match(/^\/api\/admin\/orders\/(\d+)$/);
   if (orderMatch && request.method === "PATCH") {

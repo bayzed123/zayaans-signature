@@ -1,12 +1,15 @@
 import { SiteLink as Link } from "@/components/SiteLink";
 import { categoryImage } from "@/lib/categoryAssets";
 import { API_BASE, commerceRequest, formatBdt, productImage, type Category, type Product } from "@/lib/commerce";
-import { BarChart3, Boxes, ChevronRight, ClipboardList, Link2, Loader2, LockKeyhole, PackagePlus, PencilLine, Plus, Tags, X } from "lucide-react";
+import { BarChart3, Boxes, ChevronRight, ClipboardList, Link2, Loader2, LockKeyhole, PackagePlus, PencilLine, Plus, RefreshCw, Tags, Truck, X } from "lucide-react";
 import { FormEvent, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 type Overview = { productCount: number; openOrders: number; lowStock: number };
-type AdminOrder = { id: number; order_no: string; customer_name: string; customer_phone: string; status: string; total_minor: number };
+type AdminOrder = {
+  id: number; order_no: string; customer_name: string; customer_phone: string; status: string; total_minor: number;
+  courier_consignment_id?: string | null; courier_tracking_code?: string | null; courier_status?: string | null;
+};
 type Tab = "overview" | "products" | "categories" | "orders";
 type ProductForm = {
   name: string; sku: string; categoryId: string; summary: string; description: string; fabric: string; leadTime: string; sizeGuide: string;
@@ -40,6 +43,7 @@ export default function Admin() {
   const [productEditorOpen, setProductEditorOpen] = useState(false);
   const [form, setForm] = useState<ProductForm>(blankProduct);
   const [categoryName, setCategoryName] = useState("");
+  const [courierAction, setCourierAction] = useState<string | null>(null);
 
   const refresh = async (activeToken = token) => {
     if (!activeToken) return;
@@ -111,6 +115,20 @@ export default function Admin() {
     catch (error) { toast("We could not update the order.", { description: error instanceof Error ? error.message : "Try again." }); }
   }
 
+  async function createCourierConsignment(id: number) {
+    setCourierAction(`create-${id}`);
+    try { await adminRequest(`/api/admin/orders/${id}/courier`, token, { method: "POST" }); toast("Steadfast consignment created."); await refresh(); }
+    catch (error) { toast("We could not create the courier consignment.", { description: error instanceof Error ? error.message : "Review the order address and try again." }); }
+    finally { setCourierAction(null); }
+  }
+
+  async function refreshCourierStatus(id: number) {
+    setCourierAction(`status-${id}`);
+    try { await adminRequest(`/api/admin/orders/${id}/courier-status`, token); toast("Steadfast delivery status refreshed."); await refresh(); }
+    catch (error) { toast("We could not refresh courier status.", { description: error instanceof Error ? error.message : "Try again." }); }
+    finally { setCourierAction(null); }
+  }
+
   if (!token) return <AdminLogin username={username} password={password} setUsername={setUsername} setPassword={setPassword} loading={loading} onSubmit={login} />;
   const tabs: Array<{ id: Tab; label: string; icon: typeof BarChart3 }> = [
     { id: "overview", label: "Overview", icon: BarChart3 }, { id: "products", label: "Products", icon: Boxes },
@@ -132,7 +150,7 @@ export default function Admin() {
       {tab === "overview" && <OverviewPanel overview={overview} openProductEditor={() => openProductEditor()} />}
       {tab === "products" && <ProductPanel form={form} setForm={setForm} categories={categories} products={products} editingId={editingId} editorOpen={productEditorOpen} openEditor={openProductEditor} closeEditor={closeProductEditor} save={saveProduct} />}
       {tab === "categories" && <CategoryPanel categories={categories} name={categoryName} setName={setCategoryName} create={createCategory} saveImage={updateCategoryImage} />}
-      {tab === "orders" && <OrderPanel orders={orders} updateOrder={updateOrder} />}
+      {tab === "orders" && <OrderPanel orders={orders} updateOrder={updateOrder} createCourierConsignment={createCourierConsignment} refreshCourierStatus={refreshCourierStatus} courierAction={courierAction} />}
     </main>
   </div><nav aria-label="Administrator sections" className="fixed inset-x-0 bottom-0 z-50 grid grid-cols-4 border-t border-black/12 bg-[#f8f4ed]/95 px-2 py-2 shadow-[0_-10px_30px_rgba(23,21,18,.10)] backdrop-blur md:hidden">{tabs.map((item) => <button key={item.id} onClick={() => selectTab(item.id)} className={`flex min-h-14 flex-col items-center justify-center gap-1 px-1 font-ui text-[8px] font-bold uppercase tracking-[.1em] ${tab === item.id ? "text-[#8f6b2c]" : "text-black/45"}`}><item.icon size={17} strokeWidth={tab === item.id ? 2 : 1.6} />{item.label}</button>)}</nav></div>;
 }
@@ -160,8 +178,19 @@ function CategoryImageRow({ category, saveImage }: { category: Category; saveIma
   return <article className="grid gap-4 py-5 sm:grid-cols-[4.5rem_1fr_auto] sm:items-center"><img src={categoryImage({ ...category, imageUrl })} alt="" className="h-20 w-full bg-[#ded6ca] object-cover sm:w-[4.5rem]" /><div className="min-w-0"><p className="font-ui text-sm font-semibold">{category.name}</p><p className="mt-1 font-ui text-[9px] uppercase tracking-[.12em] text-black/42">{category.parentLabel} · /{category.slug}</p><input aria-label={`${category.name} image URL`} value={imageUrl} onChange={(event) => setImageUrl(event.target.value)} placeholder="Paste category image URL" className="mt-3 min-h-11 w-full border border-black/16 bg-white/60 px-3 py-2 text-xs outline-none focus:border-[#8f6b2c]" /></div><button type="button" onClick={() => saveImage(category.id, imageUrl)} className="min-h-11 border border-[#8f6b2c]/60 px-4 font-ui text-[9px] font-bold uppercase tracking-[.12em] text-[#8f6b2c] hover:bg-[#8f6b2c] hover:text-white">Save image</button></article>;
 }
 
-function OrderPanel({ orders, updateOrder }: { orders: AdminOrder[]; updateOrder: (id: number, status: string) => void }) {
-  return <section className="mt-8 overflow-hidden border border-black/12 bg-[#f8f4ed]"><div className="overflow-x-auto"><table className="min-w-full text-left"><thead className="border-b border-black/12 bg-[#e8e0d3] font-ui text-[10px] font-bold uppercase tracking-[.15em] text-black/55"><tr><th className="px-5 py-4">Order</th><th className="px-5 py-4">Customer</th><th className="px-5 py-4">Total</th><th className="px-5 py-4">Status</th></tr></thead><tbody className="font-ui text-sm">{orders.map((order) => <tr key={order.id} className="border-b border-black/8"><td className="px-5 py-4 font-bold">{order.order_no}</td><td className="px-5 py-4"><span className="block">{order.customer_name}</span><span className="text-xs text-black/45">{order.customer_phone}</span></td><td className="px-5 py-4">{formatBdt(order.total_minor)}</td><td className="px-5 py-4"><select value={order.status} onChange={(event) => updateOrder(order.id, event.target.value)} className="min-h-10 border border-black/15 bg-transparent px-2 py-1.5 text-xs capitalize outline-none focus:border-[#8f6b2c]">{["pending", "confirmed", "preparing", "shipped", "delivered", "cancelled"].map((status) => <option key={status}>{status}</option>)}</select></td></tr>)}{!orders.length && <tr><td colSpan={4} className="px-5 py-12 text-center text-black/52">No customer orders have been placed yet.</td></tr>}</tbody></table></div></section>;
+const orderStatuses = ["pending", "confirmed", "preparing", "shipped", "delivered", "cancelled"];
+
+function CourierControls({ order, createCourierConsignment, refreshCourierStatus, courierAction }: { order: AdminOrder; createCourierConsignment: (id: number) => void; refreshCourierStatus: (id: number) => void; courierAction: string | null }) {
+  const hasConsignment = Boolean(order.courier_consignment_id || order.courier_tracking_code);
+  const creating = courierAction === `create-${order.id}`;
+  const refreshing = courierAction === `status-${order.id}`;
+  if (!hasConsignment) return <button type="button" disabled={creating} onClick={() => createCourierConsignment(order.id)} className="inline-flex min-h-11 w-full items-center justify-center gap-2 bg-[#171512] px-3 font-ui text-[9px] font-bold uppercase tracking-[.12em] text-white hover:bg-[#8f6b2c] disabled:cursor-not-allowed disabled:opacity-50 md:w-auto">{creating ? <Loader2 size={13} className="animate-spin" /> : <Truck size={13} />} Create consignment</button>;
+  return <div className="rounded-sm border border-[#8f6b2c]/25 bg-[#f4eee3] p-3"><p className="font-ui text-[9px] font-bold uppercase tracking-[.13em] text-[#8f6b2c]">Consignment #{order.courier_consignment_id || "—"}</p><p className="mt-1 font-ui text-xs font-semibold text-black">Tracking: {order.courier_tracking_code || "Pending"}</p><p className="mt-1 font-ui text-[10px] uppercase tracking-[.13em] text-black/50">Delivery: {order.courier_status?.replace(/_/g, " ") || "Awaiting refresh"}</p><button type="button" disabled={refreshing} onClick={() => refreshCourierStatus(order.id)} className="mt-3 inline-flex min-h-10 w-full items-center justify-center gap-2 border border-[#8f6b2c]/60 px-3 font-ui text-[9px] font-bold uppercase tracking-[.12em] text-[#8f6b2c] hover:bg-[#8f6b2c] hover:text-white disabled:cursor-not-allowed disabled:opacity-50">{refreshing ? <Loader2 size={13} className="animate-spin" /> : <RefreshCw size={13} />} Refresh status</button></div>;
+}
+
+function OrderPanel({ orders, updateOrder, createCourierConsignment, refreshCourierStatus, courierAction }: { orders: AdminOrder[]; updateOrder: (id: number, status: string) => void; createCourierConsignment: (id: number) => void; refreshCourierStatus: (id: number) => void; courierAction: string | null }) {
+  const courierProps = { createCourierConsignment, refreshCourierStatus, courierAction };
+  return <section className="mt-8 overflow-hidden border border-black/12 bg-[#f8f4ed]"><div className="border-b border-black/12 px-5 py-5 sm:px-7"><p className="font-ui text-[9px] font-bold uppercase tracking-[.19em] text-[#8f6b2c]">Order fulfilment</p><h2 className="mt-2 font-display text-4xl">Orders &amp; courier</h2><p className="mt-2 max-w-2xl font-ui text-xs leading-5 text-black/55">Create a Steadfast consignment only after you have reviewed the customer&apos;s order. Tracking references and delivery status stay private in this dashboard.</p></div><div className="divide-y divide-black/10 md:hidden">{orders.map((order) => <article key={order.id} className="p-5"><div className="flex items-start justify-between gap-3"><div><p className="font-ui text-[9px] font-bold uppercase tracking-[.13em] text-[#8f6b2c]">{order.order_no}</p><p className="mt-2 font-display text-2xl leading-none">{order.customer_name}</p><p className="mt-2 font-ui text-xs text-black/52">{order.customer_phone} · {formatBdt(order.total_minor)}</p></div><select aria-label={`Order status for ${order.order_no}`} value={order.status} onChange={(event) => updateOrder(order.id, event.target.value)} className="min-h-10 border border-black/15 bg-transparent px-2 py-1.5 text-xs capitalize outline-none focus:border-[#8f6b2c]">{orderStatuses.map((status) => <option key={status}>{status}</option>)}</select></div><div className="mt-4"><CourierControls order={order} {...courierProps} /></div></article>)}{!orders.length && <p className="px-5 py-12 text-center font-ui text-sm text-black/52">No customer orders have been placed yet.</p>}</div><div className="hidden overflow-x-auto md:block"><table className="min-w-[940px] w-full text-left"><thead className="border-b border-black/12 bg-[#e8e0d3] font-ui text-[10px] font-bold uppercase tracking-[.15em] text-black/55"><tr><th className="px-5 py-4">Order</th><th className="px-5 py-4">Customer</th><th className="px-5 py-4">Total</th><th className="px-5 py-4">Order status</th><th className="px-5 py-4">Steadfast courier</th></tr></thead><tbody className="font-ui text-sm">{orders.map((order) => <tr key={order.id} className="border-b border-black/8 align-top"><td className="px-5 py-5 font-bold">{order.order_no}</td><td className="px-5 py-5"><span className="block">{order.customer_name}</span><span className="text-xs text-black/45">{order.customer_phone}</span></td><td className="px-5 py-5">{formatBdt(order.total_minor)}</td><td className="px-5 py-5"><select value={order.status} onChange={(event) => updateOrder(order.id, event.target.value)} className="min-h-10 border border-black/15 bg-transparent px-2 py-1.5 text-xs capitalize outline-none focus:border-[#8f6b2c]">{orderStatuses.map((status) => <option key={status}>{status}</option>)}</select></td><td className="px-5 py-5"><CourierControls order={order} {...courierProps} /></td></tr>)}{!orders.length && <tr><td colSpan={5} className="px-5 py-12 text-center text-black/52">No customer orders have been placed yet.</td></tr>}</tbody></table></div></section>;
 }
 
 function Input({ label, value, onChange, type = "text", required = false, dark = false }: { label: string; value: string; onChange: (value: string) => void; type?: string; required?: boolean; dark?: boolean }) { return <label className={`mt-5 block font-ui text-[10px] font-bold uppercase tracking-[.14em] ${dark ? "text-white/70" : ""}`}>{label}<input type={type} value={value} required={required} onChange={(event) => onChange(event.target.value)} className={`mt-2 min-h-12 w-full border px-3 py-2.5 text-sm outline-none ${dark ? "border-white/25 bg-transparent text-white focus:border-[--gold]" : "border-black/16 bg-white/60 focus:border-[#8f6b2c]"}`} /></label>; }

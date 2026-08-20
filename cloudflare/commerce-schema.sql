@@ -53,6 +53,9 @@ CREATE TABLE IF NOT EXISTS orders (
   subtotal_minor INTEGER NOT NULL DEFAULT 0,
   shipping_minor INTEGER NOT NULL DEFAULT 0,
   total_minor INTEGER NOT NULL DEFAULT 0,
+  courier_consignment_id TEXT DEFAULT NULL,
+  courier_tracking_code TEXT DEFAULT NULL,
+  courier_status TEXT DEFAULT NULL,
   created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );

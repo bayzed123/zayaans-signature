@@ -77,3 +77,15 @@ jobs:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUD_FLARE_API }}
           ZAYAAN_ADMIN_PASSWORD: ${{ secrets.ZAYAAN_ADMIN_PASSWORD }}
           ZAYAAN_ADMIN_USERNAME: ${{ secrets.ZAYAAN_ADMIN_USERNAME }}
+      - name: Refresh Steadfast Courier Worker secrets when provided
+        run: |
+          if [ -z "$STEADFAST_API_KEY" ] || [ -z "$STEADFAST_SECRET_KEY" ]; then
+            echo "Steadfast repository secrets are not configured. Existing Cloudflare Worker secrets are retained."
+            exit 0
+          fi
+          printf '%s' "$STEADFAST_API_KEY" | npx --yes wrangler@4 secret put STEADFAST_API_KEY --config cloudflare/wrangler.toml
+          printf '%s' "$STEADFAST_SECRET_KEY" | npx --yes wrangler@4 secret put STEADFAST_SECRET_KEY --config cloudflare/wrangler.toml
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUD_FLARE_API }}
+          STEADFAST_API_KEY: ${{ secrets.STEADFAST_API_KEY }}
+          STEADFAST_SECRET_KEY: ${{ secrets.STEADFAST_SECRET_KEY }}
