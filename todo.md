@@ -102,6 +102,9 @@
 - [x] Add protected server-side consignment creation and delivery-status lookup routes for administrator use.
 - [x] Add private administrator courier controls, consignment references, and delivery-status visibility to order management.
 - [ ] Validate the courier integration without submitting a real shipment or accessing customer data beyond existing test-safe order records.
+- [ ] Task 01 validation follow-up — Create a clearly designated non-customer D1 verification record and verify the deployed delivery-status route and private UI against it without creating a shipment.
+- [ ] Task 01 external verification gate — Activate the Steadfast account or obtain a Steadfast sandbox credential. Account health authentication succeeds, but the provider rejects create-order with “Account is not active!”, so a successful live status lookup is not presently possible.
+- [ ] Task 01 authorized live verification — Once the Steadfast account is active, submit the already created clearly labelled zero-value owner test order and confirm returned tracking and status without touching any customer order.
 
 ## One-Task-at-a-Time E-commerce Improvement Roadmap
 

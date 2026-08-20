@@ -23,3 +23,15 @@ The workflow skips this optional refresh safely when those GitHub secrets are un
 | `GET /api/admin/orders/:id/courier-status` | Looks up Steadfast delivery status using the order’s unique order number and stores the result. |
 
 The administrator UI deliberately requires a manual **Create consignment** action. This avoids submitting a shipment simply from viewing or refreshing an order.
+
+## Safe verification procedure
+
+Do not create a production consignment merely to test the integration, and do not use customer records as test data. The focused regression suite at `server/worker.courier.test.ts` uses an in-memory D1 order with the clearly labelled `ZS-VERIFICATION-77` reference and intercepts the Courier API request. It proves both the consignment request contract and the protected delivery-status synchronization route without sending any shipment or customer data to Steadfast.
+
+Run the focused check with:
+
+```bash
+pnpm test -- server/worker.courier.test.ts
+```
+
+For interface review, use fixture data labelled `ZS-VERIFICATION-*` in a local browser-only session. Do not select a live customer order or press **Create consignment** as part of routine verification.

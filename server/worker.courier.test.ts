@@ -1,5 +1,12 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { steadfastRequest, type Env } from "../cloudflare/worker";
+import worker, { steadfastRequest, type Env } from "../cloudflare/worker";
+
+async function adminAuthorization(password: string): Promise<string> {
+  const payload = Buffer.from(JSON.stringify({ scope: "admin", exp: Math.floor(Date.now() / 1000) + 600 })).toString("base64url");
+  const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(password), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  const signature = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(payload));
+  return `Bearer ${payload}.${Buffer.from(signature).toString("base64url")}`;
+}
 
 describe("Steadfast Worker request helper", () => {
   afterEach(() => vi.unstubAllGlobals());
@@ -26,5 +33,53 @@ describe("Steadfast Worker request helper", () => {
       headers: expect.objectContaining({ "Api-Key": "test-api-key", "Secret-Key": "test-secret-key", "Content-Type": "application/json" }),
       body: JSON.stringify({ invoice: "ZS-20260820-ABC123", recipient_name: "Customer", recipient_phone: "01700000000", recipient_address: "Dhaka", cod_amount: 1250 }),
     }));
+  });
+
+  it("synchronizes a test-safe delivery status through the protected Worker route without creating a shipment", async () => {
+    const updates: Array<{ query: string; bindings: unknown[] }> = [];
+    const commerce = {
+      prepare(query: string) {
+        return {
+          bind(...bindings: unknown[]) {
+            return {
+              first: async () => query.startsWith("SELECT id, order_no, courier_consignment_id") ? {
+                id: 77,
+                order_no: "ZS-VERIFICATION-77",
+                courier_consignment_id: "test-consignment-77",
+                courier_tracking_code: "TESTTRACK77",
+              } : null,
+              run: async () => {
+                updates.push({ query, bindings });
+                return { success: true };
+              },
+            };
+          },
+        };
+      },
+    };
+    const courierFetch = vi.fn().mockResolvedValue(new Response(JSON.stringify({ status: 200, delivery_status: "in_review" }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    }));
+    vi.stubGlobal("fetch", courierFetch);
+    const env = {
+      COMMERCE: commerce,
+      ADMIN_PASSWORD: "task-01-admin-secret",
+      STEADFAST_API_KEY: "test-api-key",
+      STEADFAST_SECRET_KEY: "test-secret-key",
+      ALLOWED_ORIGIN: "https://example.test",
+    } as unknown as Env;
+
+    const response = await worker.fetch(new Request("https://worker.test/api/admin/orders/77/courier-status", {
+      headers: { Authorization: await adminAuthorization("task-01-admin-secret") },
+    }), env);
+
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toEqual({ id: 77, courierStatus: "in_review" });
+    expect(courierFetch).toHaveBeenCalledWith("https://portal.packzy.com/api/v1/status_by_invoice/ZS-VERIFICATION-77", expect.objectContaining({ method: "GET" }));
+    expect(updates).toEqual([{
+      query: "UPDATE orders SET courier_status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
+      bindings: ["in_review", 77],
+    }]);
   });
 });
