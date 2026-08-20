@@ -6,3 +6,6 @@
 - The private login completed successfully and loaded the protected administration overview, which showed catalogue, order, and low-stock management counters without revealing credentials to public visitors.
 - After the first route repair, the project homepage still loaded correctly but its primary collection call-to-action resolved to `/collection` at the GitHub account root. This is the remaining 404 path being corrected.
 - Browser inspection confirmed that the header collection link resolved inside `/zayaans-signature/`, while the homepage primary call-to-action still resolved to the account root. The final repair targets that CTA path specifically.
+- After the deterministic project-base deployment, the live homepage primary collection action resolved to `https://bayzed123.github.io/zayaans-signature/collection` and loaded the boutique category page successfully, with no GitHub Pages account-root 404.
+- The final direct-route checks confirmed that both `/zayaans-signature/admin` and `/zayaans-signature/cart` loaded their protected administration and empty-bag views respectively, with their internal navigation retained under the GitHub project path.
+- Direct tests of `/zayaans-signature/track` and `/zayaans-signature/category/women-ethnic-saree` also loaded their order-tracking and filtered boutique views without a GitHub Pages 404.
