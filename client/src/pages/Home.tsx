@@ -30,11 +30,7 @@ export default function Home() {
 
   async function submitNewsletter(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const endpoint = import.meta.env.VITE_API_BASE_URL;
-    if (!endpoint) {
-      toast("The private list will open shortly.", { description: "You can contact Zayaan’s Signature on WhatsApp today." });
-      return;
-    }
+    const endpoint = import.meta.env.VITE_API_BASE_URL || "https://zayaans-signature-api.mahmudajenny6.workers.dev";
     setSending(true);
     try {
       const response = await fetch(`${endpoint.replace(/\/$/, "")}/api/newsletter`, {

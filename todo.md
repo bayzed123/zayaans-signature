@@ -6,4 +6,5 @@
 - [ ] Verify the Cloudflare account token has Workers and D1 permissions for the configured account.
 - [ ] Verify the latest GitHub Actions run builds and deploys the frontend.
 - [ ] Confirm the Cloudflare Worker deployment and public API routing status.
+- [ ] Publish the live Worker URL in the frontend newsletter configuration.
 - [ ] Provide the final repository and access details.
