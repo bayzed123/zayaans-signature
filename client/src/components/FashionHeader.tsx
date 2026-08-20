@@ -5,11 +5,11 @@
 import CollectionMenu from "@/components/CollectionMenu";
 import { SiteLink as Link } from "@/components/SiteLink";
 import { useCart } from "@/contexts/CartContext";
+import { STOREFRONT_ASSETS } from "@/lib/storefrontAssets";
 import { ChevronDown, Menu, MessageCircle, ShoppingBag, X } from "lucide-react";
 import { useState } from "react";
 
 const whatsappUrl = "https://wa.me/8801750858257?text=Hello%20Zayaan%27s%20Signature%2C%20I%20would%20like%20to%20enquire%20about%20a%20signature%20piece.";
-const campaignAssetBase = "https://raw.githubusercontent.com/bayzed123/zayaans-signature/main/client/public/images/";
 
 export default function FashionHeader() {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -24,7 +24,7 @@ export default function FashionHeader() {
     <header className="fixed inset-x-0 top-0 z-50 border-b border-white/10 bg-black/80 text-white backdrop-blur-xl">
       <div className="mx-auto flex h-[76px] max-w-[1440px] items-center justify-between px-5 sm:px-8 lg:px-12">
         <Link href="/" onClick={closeMenus} className="group flex items-center gap-3" aria-label="Zayaan's Signature home">
-          <img src={`${campaignAssetBase}zayaans-monogram.png`} alt="Zayaan's Signature monogram" className="h-11 w-11 object-contain transition-transform duration-300 group-hover:scale-105" />
+          <img src={STOREFRONT_ASSETS.monogram} alt="Zayaan's Signature monogram" className="h-11 w-11 object-contain transition-transform duration-300 group-hover:scale-105" />
           <span className="leading-none"><span className="block font-display text-[1.55rem] tracking-tight sm:text-2xl">Zayaan&apos;s</span><span className="block pl-[1px] pt-1 font-ui text-[8px] font-semibold tracking-[0.34em] text-[--gold]">SIGNATURE</span></span>
         </Link>
 

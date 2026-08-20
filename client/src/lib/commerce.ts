@@ -1,3 +1,5 @@
+import { STOREFRONT_ASSETS } from "@/lib/storefrontAssets";
+
 export const API_BASE = (import.meta.env.VITE_API_BASE_URL || "https://zayaans-signature-api.mahmudajenny6.workers.dev").replace(/\/$/, "");
 
 export type Category = {
@@ -69,5 +71,6 @@ export async function commerceRequest<T>(path: string, init?: RequestInit): Prom
 }
 
 export function productImage(product: Product): string {
-  return product.imageUrl || product.gallery[0] || "https://raw.githubusercontent.com/bayzed123/zayaans-signature/main/client/public/images/zayaans-collection-01.jpg";
+  if (product.imageUrl || product.gallery[0]) return product.imageUrl || product.gallery[0];
+  return STOREFRONT_ASSETS.productFallbacks[Math.abs(product.id) % STOREFRONT_ASSETS.productFallbacks.length];
 }

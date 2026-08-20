@@ -8,11 +8,12 @@ import { toast } from "sonner";
 import { SiteLink as Link } from "@/components/SiteLink";
 import FashionHeader from "@/components/FashionHeader";
 import FeaturedCollection from "@/components/FeaturedCollection";
+import { STOREFRONT_ASSETS } from "@/lib/storefrontAssets";
 
 const appBase = import.meta.env.BASE_URL;
 const campaignAssetBase = "https://raw.githubusercontent.com/bayzed123/zayaans-signature/main/client/public/images/";
 const heroImage = `${campaignAssetBase}zayaans-hero.jpg`;
-const lookbookImage = `${campaignAssetBase}zayaans-lookbook-01.jpg`;
+const lookbookImage = STOREFRONT_ASSETS.lookbook;
 const whatsapp = "https://wa.me/8801750858257";
 const facebook = "https://www.facebook.com/share/1DbpHnT9DS/?mibextid=wwXIfr";
 
@@ -92,7 +93,7 @@ export default function Home() {
 
         <section id="house" className="relative overflow-hidden bg-[#151310] px-5 py-24 text-[#f8f5ef] sm:px-8 lg:px-12 lg:py-36">
           <div className="absolute -right-16 top-1/2 hidden -translate-y-1/2 lg:block">
-            <img src={`${appBase}logo.svg`} alt="" className="h-[420px] w-[420px] opacity-[.075]" />
+            <img src={STOREFRONT_ASSETS.monogram} alt="" className="h-[420px] w-[420px] object-contain opacity-[.075]" />
           </div>
           <div className="relative mx-auto grid max-w-[1440px] gap-14 lg:grid-cols-[.8fr_1.2fr] lg:items-start">
             <div className="lg:pt-5"><p className="section-kicker text-[--gold]">The house</p></div>
@@ -138,7 +139,7 @@ export default function Home() {
       <footer className="bg-[#090909] px-5 py-14 text-white sm:px-8 lg:px-12">
         <div className="mx-auto max-w-[1440px]">
           <div className="flex flex-col justify-between gap-12 border-b border-white/15 pb-12 lg:flex-row lg:items-end">
-            <a href="#top" className="flex items-center gap-4"><img src={`${appBase}logo.svg`} alt="Zayaan’s Signature monogram" className="h-14 w-14" /><span><span className="block font-display text-4xl leading-none">Zayaan&apos;s</span><span className="mt-2 block font-ui text-[9px] font-bold tracking-[.32em] text-[--gold]">SIGNATURE</span></span></a>
+            <a href="#top" className="flex items-center gap-4"><img src={STOREFRONT_ASSETS.monogram} alt="Zayaan’s Signature monogram" className="h-14 w-14 object-contain" /><span><span className="block font-display text-4xl leading-none">Zayaan&apos;s</span><span className="mt-2 block font-ui text-[9px] font-bold tracking-[.32em] text-[--gold]">SIGNATURE</span></span></a>
             <p className="max-w-sm font-ui text-sm leading-7 text-white/57">For an occasion that calls for more than an outfit, begin a private conversation with the house.</p>
             <a href={productEnquiry("a signature consultation")} target="_blank" rel="noreferrer" className="gold-button shrink-0">Reserve your piece <MessageCircle size={15} /></a>
           </div>

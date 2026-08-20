@@ -55,3 +55,20 @@
 - [x] Validate the complete category navigation on desktop and mobile without disrupting direct category URLs.
 - [x] Re-verify the updated administrator dashboard on desktop, including its sidebar, Add Product action, and product inventory editing entry point.
 - [x] Re-test a direct deployed category URL after the premium navigation deployment and record the result.
+
+## Clearly Labelled Demonstration Catalogue
+
+- [ ] Confirm every supplied women’s, kids’, teen, newborn, Nargisus, sale, and daily-life category is available for demonstration entries.
+- [ ] Prepare two clearly labelled non-purchasable sample products for every supplied category with structured fashion details and illustrative BDT prices.
+- [ ] Load the demonstration catalogue into the commerce database without representing the entries as owner-verified stock.
+- [ ] Add customer-facing and administrator-facing demonstration labels and prevent purchase requests for demonstration pieces.
+- [ ] Validate category browsing, product detail views, and cart safeguards with the demonstration catalogue.
+
+## Storefront Visual Asset Refresh
+
+- [x] Inspect logo and product-image assets from the Fashion-Design-Architecture reference repository and the current storefront.
+- [x] Select or create premium visual assets suitable for Zayaan’s Signature without copying the reference brand identity.
+- [x] Apply the selected logo and storefront product-image presentation without modifying the administrator system.
+- [x] Verify the public storefront visuals and the unchanged administrator entry after deployment.
+- [ ] Confirm the generated Zayaan’s Signature monogram resolves successfully and remains brand-safe at storefront header size.
+- [ ] Publish the storefront visual refresh and verify the live homepage, collection, and private administrator entry.
