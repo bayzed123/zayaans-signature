@@ -24,6 +24,11 @@ type ProductRow = {
   stock: number; status: string; featured: number; created_at: string; updated_at: string;
 };
 
+type CategoryRow = {
+  id: number; slug: string; name: string; description: string; image_url: string;
+  sort_order: number; parent_label: string; audience: string; status: string;
+};
+
 const ORDER_STATUSES = ["pending", "confirmed", "preparing", "shipped", "delivered", "cancelled"] as const;
 const STEADFAST_API_BASE = "https://portal.packzy.com/api/v1";
 
@@ -198,11 +203,28 @@ function passwordMatches(given: string, expected: string): boolean {
   return mismatch === 0;
 }
 
-async function categories(env: Env) {
+async function categories(env: Env, includeArchived = false) {
+  const visibility = includeArchived ? "" : " WHERE status = 'active'";
   const { results } = await env.COMMERCE.prepare(
-    "SELECT id, slug, name, description, image_url AS imageUrl, sort_order AS sortOrder, parent_label AS parentLabel, audience FROM categories ORDER BY audience, parent_label, sort_order, name",
+    `SELECT id, slug, name, description, image_url AS imageUrl, sort_order AS sortOrder, parent_label AS parentLabel, audience, status FROM categories${visibility} ORDER BY audience, parent_label, sort_order, name`,
   ).all();
   return results ?? [];
+}
+
+export function adminCategoryWrite(body: Payload, existing?: CategoryRow) {
+  const name = clean(body.name ?? existing?.name, 80);
+  const slug = slugify(clean(body.slug ?? existing?.slug ?? name, 100));
+  const description = clean(body.description ?? existing?.description, 500);
+  const imageUrl = clean(body.imageUrl ?? existing?.image_url, 500);
+  const parentLabel = clean(body.parentLabel ?? existing?.parent_label, 120);
+  const audience = clean(body.audience ?? existing?.audience ?? "women", 20);
+  const status = clean(body.status ?? existing?.status ?? "active", 20);
+  const sortOrder = Number(body.sortOrder ?? existing?.sort_order ?? 0);
+  if (!name || !slug) throw new Error("Category name is required");
+  if (!Number.isInteger(sortOrder) || sortOrder < 0 || sortOrder > 100000) throw new Error("Category order must be a whole number from 0 to 100000");
+  if (!["women", "kids"].includes(audience)) throw new Error("Category audience must be women or kids");
+  if (!["active", "archived"].includes(status)) throw new Error("Category status must be active or archived");
+  return { name, slug, description, imageUrl, parentLabel, audience, status, sortOrder };
 }
 
 async function adminProductWrite(env: Env, body: Payload, existing?: ProductRow) {
@@ -240,7 +262,7 @@ async function publicCatalogue(request: Request, env: Env) {
   const url = new URL(request.url);
   const category = clean(url.searchParams.get("category"), 100);
   const featured = url.searchParams.get("featured") === "true";
-  const where = ["p.status = 'active'"];
+  const where = ["p.status = 'active'", "(c.id IS NULL OR c.status = 'active')"];
   const bindings: unknown[] = [];
   if (category) { where.push("c.slug = ?"); bindings.push(category); }
   if (featured) where.push("p.featured = 1");
@@ -315,19 +337,26 @@ async function adminRoute(request: Request, env: Env, url: URL): Promise<Respons
     ]);
     return json({ productCount: products.results?.[0]?.count ?? 0, openOrders: orders.results?.[0]?.count ?? 0, lowStock: lowStock.results?.[0]?.count ?? 0 }, 200, request, env);
   }
-  if (url.pathname === "/api/admin/categories" && request.method === "GET") return json({ categories: await categories(env) }, 200, request, env);
+  if (url.pathname === "/api/admin/categories" && request.method === "GET") return json({ categories: await categories(env, true) }, 200, request, env);
   if (url.pathname === "/api/admin/categories" && request.method === "POST") {
-    const body = await readPayload(request); const name = clean(body?.name, 80); const slug = slugify(clean(body?.slug ?? name, 100));
-    if (!name || !slug) return json({ error: "Category name is required" }, 422, request, env);
-    try { const inserted = await env.COMMERCE.prepare("INSERT INTO categories (name, slug, description, image_url, sort_order, parent_label, audience) VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING id").bind(name, slug, clean(body?.description, 500), clean(body?.imageUrl, 500), Number(body?.sortOrder) || 0, clean(body?.parentLabel, 120), clean(body?.audience, 20) || "women").first<{ id: number }>(); return json({ id: inserted?.id, name, slug }, 201, request, env); } catch { return json({ error: "That category already exists" }, 409, request, env); }
+    const body = await readPayload(request); if (!body) return json({ error: "Invalid category payload" }, 400, request, env);
+    try { const category = adminCategoryWrite(body); const inserted = await env.COMMERCE.prepare("INSERT INTO categories (name, slug, description, image_url, sort_order, parent_label, audience, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?) RETURNING id").bind(category.name, category.slug, category.description, category.imageUrl, category.sortOrder, category.parentLabel, category.audience, category.status).first<{ id: number }>(); return json({ id: inserted?.id, ...category }, 201, request, env); } catch (error) { return json({ error: error instanceof Error ? error.message : "That category already exists" }, 422, request, env); }
   }
   const categoryMatch = url.pathname.match(/^\/api\/admin\/categories\/(\d+)$/);
   if (categoryMatch && request.method === "PATCH") {
-    const id = Number(categoryMatch[1]); const body = await readPayload(request); const imageUrl = clean(body?.imageUrl, 500);
+    const id = Number(categoryMatch[1]); const body = await readPayload(request); if (!body) return json({ error: "Invalid category payload" }, 400, request, env);
+    const current = await env.COMMERCE.prepare("SELECT * FROM categories WHERE id = ?").bind(id).first<CategoryRow>();
+    if (!current) return json({ error: "Category not found" }, 404, request, env);
+    try { const category = adminCategoryWrite(body, current); await env.COMMERCE.prepare("UPDATE categories SET slug=?, name=?, description=?, image_url=?, sort_order=?, parent_label=?, audience=?, status=?, updated_at=CURRENT_TIMESTAMP WHERE id=?").bind(category.slug, category.name, category.description, category.imageUrl, category.sortOrder, category.parentLabel, category.audience, category.status, id).run(); return json({ id, ...category }, 200, request, env); } catch (error) { return json({ error: error instanceof Error ? error.message : "Unable to update category" }, 422, request, env); }
+  }
+  if (categoryMatch && request.method === "DELETE") {
+    const id = Number(categoryMatch[1]);
     const current = await env.COMMERCE.prepare("SELECT id FROM categories WHERE id = ?").bind(id).first<{ id: number }>();
     if (!current) return json({ error: "Category not found" }, 404, request, env);
-    await env.COMMERCE.prepare("UPDATE categories SET image_url = ? WHERE id = ?").bind(imageUrl, id).run();
-    return json({ id, imageUrl }, 200, request, env);
+    const references = await env.COMMERCE.prepare("SELECT COUNT(*) AS count FROM products WHERE category_id = ?").bind(id).first<{ count: number }>();
+    if (Number(references?.count ?? 0) > 0) return json({ error: "This category contains products and cannot be deleted. Archive it or reassign its products first." }, 409, request, env);
+    await env.COMMERCE.prepare("DELETE FROM categories WHERE id = ?").bind(id).run();
+    return json({ id, deleted: true }, 200, request, env);
   }
   if (url.pathname === "/api/admin/products" && request.method === "GET") {
     const { results } = await env.COMMERCE.prepare("SELECT p.*, c.name AS category_name FROM products p LEFT JOIN categories c ON c.id = p.category_id ORDER BY p.updated_at DESC").all<ProductRow>();

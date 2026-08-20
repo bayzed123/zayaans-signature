@@ -8,6 +8,9 @@ CREATE TABLE IF NOT EXISTS categories (
   description TEXT NOT NULL DEFAULT '',
   image_url TEXT NOT NULL DEFAULT '',
   sort_order INTEGER NOT NULL DEFAULT 0,
+  parent_label TEXT NOT NULL DEFAULT '',
+  audience TEXT NOT NULL DEFAULT 'women' CHECK (audience IN ('women','kids')),
+  status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active','archived')),
   created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -45,6 +48,7 @@ CREATE INDEX IF NOT EXISTS idx_products_status ON products(status);
 CREATE INDEX IF NOT EXISTS idx_products_featured ON products(featured);
 CREATE INDEX IF NOT EXISTS idx_products_brand ON products(brand);
 CREATE INDEX IF NOT EXISTS idx_products_promotions ON products(is_new_arrival, is_offer, is_best_seller);
+CREATE INDEX IF NOT EXISTS idx_categories_management ON categories(audience, parent_label, status, sort_order, name);
 
 CREATE TABLE IF NOT EXISTS orders (
   id INTEGER PRIMARY KEY AUTOINCREMENT,

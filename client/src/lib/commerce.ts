@@ -12,6 +12,7 @@ export type Category = {
   sortOrder: number;
   parentLabel: string;
   audience: "women" | "kids";
+  status: "active" | "archived";
 };
 
 export type Product = {
