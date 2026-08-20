@@ -1,5 +1,5 @@
 export const STOREFRONT_ASSETS = {
-  monogram: "/manus-storage/zayaans-signature-monogram-clean_3feb8d95.png",
+  monogram: `${import.meta.env.BASE_URL}logo.svg`,
   lookbook: "/manus-storage/zayaans-lookbook-reference_c30a1567.jpg",
   productFallbacks: [
     "/manus-storage/product-1_8ca9ec03.jpg",
