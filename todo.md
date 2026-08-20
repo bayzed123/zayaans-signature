@@ -145,6 +145,10 @@
 - [x] Task 07c — Build responsive customer catalogue controls with truthful result counts, removable filters, and an honest empty state.
 - [x] Task 07d — Add focused request and rendered-catalogue regression coverage, then verify desktop and mobile search workflows before publishing.
 - [ ] Task 08 — Validate and improve cart and checkout totals, delivery information, payment method display, and stock-aware quantity rules.
+- [x] Task 08a — Audit cart persistence, quantity controls, checkout totals, order submission, delivery fields, and current stock verification.
+- [ ] Task 08b — Add stock-aware cart quantity rules and server-side order validation that prevents a customer from ordering unavailable quantities.
+- [ ] Task 08c — Present transparent subtotal, delivery, payment, and total information throughout the customer cart and checkout journey.
+- [ ] Task 08d — Add focused cart and checkout regression coverage, then verify desktop and mobile purchase flows before publishing.
 - [ ] Task 09 — Implement inventory lifecycle management: available and sold quantities, low-stock/out-of-stock alerts, adjustment history, and stock reporting.
 - [ ] Task 10 — Expand order lifecycle management with clear processing, courier, delivery, cancellation, return, failed-delivery, and refund statuses plus a durable order timeline.
 - [ ] Task 11 — Upgrade the private desktop administrator shell with a top navbar, responsive sidebar behavior, search, profile menu, notification area, and mobile drawer without exposing admin navigation publicly.

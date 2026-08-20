@@ -311,8 +311,10 @@ async function createOrder(request: Request, env: Env) {
   const products = new Map((results ?? []).map((row) => [row.id, row]));
   if (products.size !== ids.length) return json({ error: "One or more pieces are no longer available" }, 409, request, env);
   const orderNo = `ZS-${new Date().toISOString().slice(0, 10).replace(/-/g, "")}-${crypto.randomUUID().slice(0, 6).toUpperCase()}`;
+  const requestedByProduct = new Map<number, number>();
+  for (const item of quantities) requestedByProduct.set(item.id, (requestedByProduct.get(item.id) ?? 0) + item.qty);
+  if ([...requestedByProduct].some(([id, qty]) => products.get(id)!.stock < qty)) return json({ error: "A selected piece no longer has sufficient stock" }, 409, request, env);
   const lineItems = quantities.map((item) => ({ ...item, product: products.get(item.id)! }));
-  if (lineItems.some((item) => item.product.stock < item.qty)) return json({ error: "A selected piece no longer has sufficient stock" }, 409, request, env);
   const subtotal = lineItems.reduce((sum, item) => sum + item.product.price_minor * item.qty, 0);
   const statements = [
     env.COMMERCE.prepare("INSERT INTO orders (order_no, customer_name, customer_phone, customer_email, address, note, subtotal_minor, total_minor) VALUES (?, ?, ?, ?, ?, ?, ?, ?)").bind(orderNo, customerName, customerPhone, customerEmail, address, note, subtotal, subtotal),

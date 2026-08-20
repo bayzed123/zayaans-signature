@@ -35,19 +35,20 @@ export function CartProvider({ children }: { children: ReactNode }) {
     count: items.reduce((total, item) => total + item.quantity, 0),
     subtotalMinor: items.reduce((total, item) => total + item.product.priceMinor * item.quantity, 0),
     add(product, options) {
+      if (product.stock < 1) return;
       const size = options.size ?? "";
       const colour = options.colour ?? "";
-      const quantity = Math.max(1, Math.min(options.quantity ?? 1, Math.max(product.stock, 1)));
+      const quantity = Math.max(1, Math.min(options.quantity ?? 1, product.stock));
       const key = `${product.id}:${size}:${colour}`;
       setItems((current) => {
         const match = current.find((item) => item.key === key);
         if (!match) return [...current, { key, product, size, colour, quantity }];
-        return current.map((item) => item.key === key ? { ...item, quantity: Math.min(item.quantity + quantity, Math.max(product.stock, 1)), product } : item);
+        return current.map((item) => item.key === key ? { ...item, quantity: Math.min(item.quantity + quantity, product.stock), product } : item);
       });
     },
     updateQuantity(key, quantity) {
       setItems((current) => current
-        .map((item) => item.key === key ? { ...item, quantity: Math.max(0, Math.min(quantity, Math.max(item.product.stock, 1))) } : item)
+        .map((item) => item.key === key ? { ...item, quantity: Math.max(0, Math.min(quantity, item.product.stock)) } : item)
         .filter((item) => item.quantity > 0));
     },
     remove(key) { setItems((current) => current.filter((item) => item.key !== key)); },
@@ -62,4 +63,3 @@ export function useCart() {
   if (!context) throw new Error("useCart must be used inside CartProvider");
   return context;
 }
-
