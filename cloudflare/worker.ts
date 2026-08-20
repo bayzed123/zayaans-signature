@@ -261,15 +261,34 @@ async function adminProductWrite(env: Env, body: Payload, existing?: ProductRow)
 async function publicCatalogue(request: Request, env: Env) {
   const url = new URL(request.url);
   const category = clean(url.searchParams.get("category"), 100);
+  const query = clean(url.searchParams.get("q"), 100);
+  const brand = clean(url.searchParams.get("brand"), 80);
+  const availability = clean(url.searchParams.get("availability"), 30);
+  const promotion = clean(url.searchParams.get("promotion"), 30);
+  const sort = clean(url.searchParams.get("sort"), 30) || "featured";
   const featured = url.searchParams.get("featured") === "true";
+  const minPrice = Number(url.searchParams.get("minPrice"));
+  const maxPrice = Number(url.searchParams.get("maxPrice"));
   const where = ["p.status = 'active'", "(c.id IS NULL OR c.status = 'active')"];
   const bindings: unknown[] = [];
   if (category) { where.push("c.slug = ?"); bindings.push(category); }
+  if (query) { where.push("(lower(p.name) LIKE ? OR lower(p.sku) LIKE ?)"); const match = `%${query.toLowerCase()}%`; bindings.push(match, match); }
+  if (brand) { where.push("lower(p.brand) = ?"); bindings.push(brand.toLowerCase()); }
+  if (["in_stock", "low_stock", "out_of_stock"].includes(availability)) {
+    if (availability === "in_stock") where.push("p.stock > 0");
+    if (availability === "low_stock") where.push("p.stock BETWEEN 1 AND 3");
+    if (availability === "out_of_stock") where.push("p.stock = 0");
+  }
+  if (["new", "offer", "best_seller"].includes(promotion)) where.push(promotion === "new" ? "p.is_new_arrival = 1" : promotion === "offer" ? "p.is_offer = 1" : "p.is_best_seller = 1");
+  if (Number.isFinite(minPrice) && minPrice >= 0) { where.push("p.price_minor >= ?"); bindings.push(Math.round(minPrice * 100)); }
+  if (Number.isFinite(maxPrice) && maxPrice >= 0) { where.push("p.price_minor <= ?"); bindings.push(Math.round(maxPrice * 100)); }
   if (featured) where.push("p.featured = 1");
+  const orderBy: Record<string, string> = { featured: "p.featured DESC, p.created_at DESC", newest: "p.created_at DESC", price_asc: "p.price_minor ASC, p.name COLLATE NOCASE", price_desc: "p.price_minor DESC, p.name COLLATE NOCASE", name_asc: "p.name COLLATE NOCASE" };
   const { results } = await env.COMMERCE.prepare(
-    `SELECT p.*, c.name AS category_name, c.slug AS category_slug FROM products p LEFT JOIN categories c ON c.id = p.category_id WHERE ${where.join(" AND ")} ORDER BY p.featured DESC, p.created_at DESC`,
+    `SELECT p.*, c.name AS category_name, c.slug AS category_slug FROM products p LEFT JOIN categories c ON c.id = p.category_id WHERE ${where.join(" AND ")} ORDER BY ${orderBy[sort] ?? orderBy.featured}`,
   ).bind(...bindings).all<ProductRow>();
-  return json({ products: (results ?? []).map(mapProduct), categories: await categories(env) }, 200, request, env);
+  const { results: brands } = await env.COMMERCE.prepare("SELECT DISTINCT brand FROM products WHERE status = 'active' AND brand != '' ORDER BY brand COLLATE NOCASE").all<{ brand: string }>();
+  return json({ products: (results ?? []).map(mapProduct), categories: await categories(env), filters: { brands: (brands ?? []).map((row) => row.brand) } }, 200, request, env);
 }
 
 async function createOrder(request: Request, env: Env) {
