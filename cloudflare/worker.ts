@@ -29,7 +29,10 @@ type CategoryRow = {
   sort_order: number; parent_label: string; audience: string; status: string;
 };
 
-const ORDER_STATUSES = ["pending", "confirmed", "preparing", "shipped", "delivered", "cancelled"] as const;
+const ORDER_STATUSES = ["pending", "confirmed", "preparing", "courier", "shipped", "delivered", "failed_delivery", "cancelled", "returned", "refunded"] as const;
+const ORDER_TRANSITIONS: Record<(typeof ORDER_STATUSES)[number], string[]> = {
+  pending: ["confirmed", "cancelled"], confirmed: ["preparing", "cancelled"], preparing: ["courier", "shipped", "cancelled"], courier: ["shipped", "failed_delivery", "cancelled"], shipped: ["delivered", "failed_delivery", "returned"], delivered: ["returned", "refunded"], failed_delivery: ["courier", "returned", "cancelled"], cancelled: [], returned: ["refunded"], refunded: [],
+};
 const STEADFAST_API_BASE = "https://portal.packzy.com/api/v1";
 
 type SteadfastConsignment = {
@@ -494,6 +497,7 @@ async function adminRoute(request: Request, env: Env, url: URL): Promise<Respons
     if (!ORDER_STATUSES.includes(status as typeof ORDER_STATUSES[number])) return json({ error: "Invalid order status" }, 422, request, env);
     const order = await env.COMMERCE.prepare("SELECT id, status FROM orders WHERE id = ?").bind(id).first<{ id: number; status: string }>();
     if (!order) return json({ error: "Order not found" }, 404, request, env);
+    if (status !== order.status && !ORDER_TRANSITIONS[order.status as keyof typeof ORDER_TRANSITIONS]?.includes(status)) return json({ error: `Cannot move an order from ${order.status} to ${status}` }, 409, request, env);
     const statements = [env.COMMERCE.prepare("UPDATE orders SET status=?, updated_at=CURRENT_TIMESTAMP WHERE id=?").bind(status, id), env.COMMERCE.prepare("INSERT INTO order_events (order_id, status, note) VALUES (?, ?, ?)").bind(id, status, clean(body?.note, 500))];
     if (status === "cancelled" && order.status !== "cancelled") statements.push(env.COMMERCE.prepare("UPDATE products SET stock = stock + (SELECT qty FROM order_items WHERE order_id = ? AND product_id = products.id) WHERE id IN (SELECT product_id FROM order_items WHERE order_id = ? AND product_id IS NOT NULL)").bind(id, id));
     await env.COMMERCE.batch(statements);

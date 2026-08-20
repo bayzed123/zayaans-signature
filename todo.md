@@ -155,6 +155,10 @@
 - [x] Task 09c — Add private low-stock and out-of-stock alerts plus inventory history and reporting without exposing business data publicly.
 - [x] Task 09d — Add focused Worker and rendered-admin regression coverage, then verify responsive desktop and mobile inventory workflows before publishing.
 - [ ] Task 10 — Expand order lifecycle management with clear processing, courier, delivery, cancellation, return, failed-delivery, and refund statuses plus a durable order timeline.
+- [x] Task 10a — Audit current order states, Worker transition validation, event persistence, tracking visibility, and private fulfillment controls.
+- [ ] Task 10b — Add validated private order lifecycle transitions for processing, courier, delivery, cancellation, return, failed delivery, and refund states.
+- [ ] Task 10c — Add a durable private order timeline that preserves lifecycle notes and courier-related events without exposing customer data publicly.
+- [ ] Task 10d — Add focused Worker and rendered-admin regression coverage, then verify responsive desktop and mobile order workflows before publishing.
 - [ ] Task 11 — Upgrade the private desktop administrator shell with a top navbar, responsive sidebar behavior, search, profile menu, notification area, and mobile drawer without exposing admin navigation publicly.
 - [ ] Task 12 — Build the administrator dashboard business overview for sales, orders, inventory, customers, and delivery states using data-backed cards, charts, and tables.
 - [ ] Task 13 — Add an administrator courier-management and delivery-tracking workspace around the completed Steadfast integration, including courier references and delivery state visibility.
