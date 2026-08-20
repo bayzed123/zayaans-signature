@@ -112,7 +112,12 @@
 
 - [ ] Task 01 — Complete the existing Steadfast Courier workflow: protected consignment creation, tracking-status synchronisation, and private administrator controls without creating a live shipment.
 - [x] Task 01 verification fix — Make the private Orders courier controls reachable without horizontal-table scrolling on mobile.
-- [ ] Task 02 — Audit and preserve the current light and dark theme behavior, then establish a theme-compatible branded loading system for catalogue, checkout, admin, and courier requests.
+- [x] Task 02 — Audit and preserve the current light and dark theme behavior, then establish a theme-compatible branded loading system for catalogue, checkout, admin, and courier requests.
+- [x] Task 02a — Audit the existing theme tokens, current loading states, and request boundaries across catalogue, checkout, admin, and courier actions.
+- [x] Task 02b — Add an accessible branded loading indicator with correct contrast, reduced-motion support, and no layout shift in both light and dark contexts.
+- [x] Task 02c — Apply the loading system only to real asynchronous storefront and private-admin operations without changing business logic.
+- [x] Task 02d — Add focused regression coverage and complete desktop/mobile visual verification for the Task 02 loading experience.
+- [x] Task 02 verification follow-up — Add automated contrast, status-semantics, and named async-surface assertions to complement the captured desktop/mobile browser evidence.
 - [ ] Task 03 — Improve customer navigation with responsive desktop and mobile discovery paths for Home, Shop, Categories, Offers, New Arrivals, Best Sellers, Contact, Cart, Wishlist, and Customer Account.
 - [ ] Task 04 — Extend product management for brands, promotional placement flags, richer product media, controlled product deletion, and complete administrator validation.
 - [ ] Task 05 — Extend category management with subcategory hierarchy, category status, edit/delete safeguards, and explicit ordering controls.

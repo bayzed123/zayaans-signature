@@ -1,7 +1,8 @@
 import { SiteLink as Link } from "@/components/SiteLink";
+import { BrandedLoading, LOADING_COPY } from "@/components/BrandedLoading";
 import { buildCategoryNavigation } from "@/lib/categoryNavigation";
 import { commerceRequest, type Category } from "@/lib/commerce";
-import { ChevronRight, Loader2, Sparkles } from "lucide-react";
+import { ChevronRight, Sparkles } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 type CollectionMenuProps = {
@@ -35,7 +36,7 @@ export default function CollectionMenu({ mobile = false, onNavigate }: Collectio
   const families = useMemo(() => buildCategoryNavigation(categories), [categories]);
 
   if (loading) {
-    return <div className="flex items-center gap-2 py-5 font-ui text-[10px] font-semibold uppercase tracking-[.18em] text-white/55"><Loader2 size={14} className="animate-spin text-[--gold]" /> Loading the collection</div>;
+    return <BrandedLoading tone="dark" size="compact" label={LOADING_COPY.catalogue} className="border-0 bg-transparent px-0 py-5 text-white/55" />;
   }
 
   if (!families.length) {
