@@ -34,10 +34,17 @@ const baseProduct: Product = {
 
 describe("storefront product imagery", () => {
   it("keeps owner-provided product images as the first choice", () => {
-    expect(productImage({ ...baseProduct, imageUrl: "https://example.com/owner-piece.jpg" })).toBe("https://example.com/owner-piece.jpg");
+    expect(
+      productImage({
+        ...baseProduct,
+        imageUrl: "https://example.com/owner-piece.jpg",
+      })
+    ).toBe("https://example.com/owner-piece.jpg");
   });
 
-  it("uses the curated public studio-image fallback only when product imagery is absent", () => {
-    expect(productImage(baseProduct)).toMatch(/^\/manus-storage\/product-[1-6]_[a-z0-9]+\.jpg$/);
+  it("uses a project-owned catalogue image fallback only when product imagery is absent", () => {
+    expect(productImage(baseProduct)).toMatch(
+      /^\/images\/catalogue\/[a-z-]+\.jpg$/
+    );
   });
 });

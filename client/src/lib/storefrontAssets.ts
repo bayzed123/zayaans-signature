@@ -1,12 +1,23 @@
+/**
+ * House-owned storefront imagery.
+ *
+ * Every path here resolves under this project's own GitHub Pages build
+ * (`client/public/images/...`) — nothing depends on Manus's hosting. The
+ * previous `/manus-storage/...` paths only resolved inside the Manus preview
+ * environment and rendered as broken images once deployed to GitHub Pages.
+ */
+const asset = (path: string) => `${import.meta.env.BASE_URL}${path}`;
+
 export const STOREFRONT_ASSETS = {
-  monogram: `${import.meta.env.BASE_URL}logo.svg`,
-  lookbook: "/manus-storage/zayaans-lookbook-reference_c30a1567.jpg",
+  monogram: asset("logo.svg"),
+  lookbook: asset("images/catalogue/signature-occasion.jpg"),
   productFallbacks: [
-    "/manus-storage/product-1_8ca9ec03.jpg",
-    "/manus-storage/product-2_2fe2ffe8.jpg",
-    "/manus-storage/product-3_460fb0a1.jpg",
-    "/manus-storage/product-4_0c31f6a9.jpg",
-    "/manus-storage/product-5_d5ae3afc.jpg",
-    "/manus-storage/product-6_e7690d58.jpg",
+    asset("images/catalogue/womens-wardrobe.jpg"),
+    asset("images/catalogue/kids-family.jpg"),
+    asset("images/catalogue/teens-newborn.jpg"),
+    asset("images/catalogue/nargisus-ethnic.jpg"),
+    asset("images/catalogue/daily-life.jpg"),
+    asset("images/catalogue/mother-daughter.jpg"),
+    asset("images/catalogue/signature-occasion.jpg"),
   ],
 } as const;
