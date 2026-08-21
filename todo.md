@@ -159,11 +159,11 @@
 - [x] Task 10b — Add validated private order lifecycle transitions for processing, courier, delivery, cancellation, return, failed delivery, and refund states.
 - [x] Task 10c — Add a durable private order timeline that preserves lifecycle notes and courier-related events without exposing customer data publicly.
 - [x] Task 10d — Add focused Worker and rendered-admin regression coverage, then verify responsive desktop and mobile order workflows before publishing.
-- [ ] Task 11 — Upgrade the private desktop administrator shell with a top navbar, responsive sidebar behavior, search, profile menu, notification area, and mobile drawer without exposing admin navigation publicly.
+- [x] Task 11 — Upgrade the private desktop administrator shell with a top navbar, responsive sidebar behavior, search, profile menu, notification area, and mobile drawer without exposing admin navigation publicly.
 - [x] Task 11a — Audit the existing private administrator shell, navigation destinations, reusable dashboard components, and public-route exposure boundaries.
-- [ ] Task 11b — Build the private desktop shell with a responsive sidebar, top navbar, search affordance, profile menu, and operational notification area.
-- [ ] Task 11c — Replace the compact mobile bottom navigation with an accessible private mobile drawer while retaining every existing admin destination.
-- [ ] Task 11d — Add focused rendered-admin coverage, then verify the upgraded private shell on desktop and mobile before publishing.
+- [x] Task 11b — Build the private desktop shell with a responsive sidebar, top navbar, search affordance, profile menu, and operational notification area.
+- [x] Task 11c — Replace the compact mobile bottom navigation with an accessible private mobile drawer while retaining every existing admin destination.
+- [x] Task 11d — Add focused rendered-admin coverage, then verify the upgraded private shell on desktop and mobile before publishing.
 - [ ] Task 12 — Build the administrator dashboard business overview for sales, orders, inventory, customers, and delivery states using data-backed cards, charts, and tables.
 - [ ] Task 13 — Add an administrator courier-management and delivery-tracking workspace around the completed Steadfast integration, including courier references and delivery state visibility.
 - [ ] Task 14 — Add an authenticated customer account area for profile, saved addresses, legitimate order history, delivery tracking, and wishlist management.
