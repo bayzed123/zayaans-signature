@@ -82,4 +82,17 @@ describe("Steadfast Worker request helper", () => {
       bindings: ["in_review", 77],
     }]);
   });
+
+  it("keeps courier workspace queues private and returns operational aggregates without creating a shipment", async () => {
+    const commerce = { prepare: () => ({}), batch: async () => [
+      { results: [{ id: 7, order_no: "ZS-0007", status: "confirmed" }] },
+      { results: [{ id: 7, order_no: "ZS-0007", courier_tracking_code: "TRACK-7" }] },
+      { results: [{ id: 8, order_no: "ZS-0008", status: "failed_delivery" }] },
+      { results: [{ status: "not_dispatched", count: 1 }] },
+    ] };
+    const env = { COMMERCE: commerce, ADMIN_PASSWORD: "task-13-admin-secret", ALLOWED_ORIGIN: "https://example.test" } as unknown as Env;
+    expect((await worker.fetch(new Request("https://worker.test/api/admin/courier-workspace"), env)).status).toBe(401);
+    const response = await worker.fetch(new Request("https://worker.test/api/admin/courier-workspace", { headers: { Authorization: await adminAuthorization("task-13-admin-secret") } }), env);
+    await expect(response.json()).resolves.toMatchObject({ dispatchReady: [{ order_no: "ZS-0007" }], activeConsignments: [{ courier_tracking_code: "TRACK-7" }], exceptions: [{ status: "failed_delivery" }], provider: { liveDispatchReady: false } });
+  });
 });
