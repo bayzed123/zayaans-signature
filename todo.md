@@ -164,11 +164,11 @@
 - [x] Task 11b — Build the private desktop shell with a responsive sidebar, top navbar, search affordance, profile menu, and operational notification area.
 - [x] Task 11c — Replace the compact mobile bottom navigation with an accessible private mobile drawer while retaining every existing admin destination.
 - [x] Task 11d — Add focused rendered-admin coverage, then verify the upgraded private shell on desktop and mobile before publishing.
-- [ ] Task 12 — Build the administrator dashboard business overview for sales, orders, inventory, customers, and delivery states using data-backed cards, charts, and tables.
+- [x] Task 12 — Build the administrator dashboard business overview for sales, orders, inventory, customers, and delivery states using data-backed cards, charts, and tables.
 - [x] Task 12a — Audit the private D1 order, inventory, product, and customer data already available for truthful business metrics and time-series reporting.
-- [ ] Task 12b — Add a protected business-overview endpoint that returns sales, orders, inventory, customer, and delivery-state aggregates without exposing customer data publicly.
-- [ ] Task 12c — Build responsive private overview cards, charts, and summary tables using only returned business metrics.
-- [ ] Task 12d — Add focused Worker and rendered-admin regression coverage, then verify desktop and mobile business-overview workflows before publishing.
+- [x] Task 12b — Add a protected business-overview endpoint that returns sales, orders, inventory, customer, and delivery-state aggregates without exposing customer data publicly.
+- [x] Task 12c — Build responsive private overview cards, charts, and summary tables using only returned business metrics.
+- [x] Task 12d — Add focused Worker and rendered-admin regression coverage, then verify desktop and mobile business-overview workflows before publishing.
 - [ ] Task 13 — Add an administrator courier-management and delivery-tracking workspace around the completed Steadfast integration, including courier references and delivery state visibility.
 - [ ] Task 14 — Add an authenticated customer account area for profile, saved addresses, legitimate order history, delivery tracking, and wishlist management.
 - [ ] Task 15 — Add a secure, opt-in customer notification foundation for order-stage updates; defer third-party SMS, email, or WhatsApp delivery until service credentials and sending policy are confirmed.
