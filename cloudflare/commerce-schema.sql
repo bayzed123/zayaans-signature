@@ -75,6 +75,7 @@ CREATE TABLE IF NOT EXISTS orders (
   note TEXT NOT NULL DEFAULT '',
   payment_method TEXT NOT NULL DEFAULT 'whatsapp',
   status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending','confirmed','preparing','shipped','delivered','cancelled')),
+  delivery_zone TEXT NOT NULL DEFAULT 'dhaka' CHECK (delivery_zone IN ('dhaka','outside_dhaka')),
   subtotal_minor INTEGER NOT NULL DEFAULT 0,
   shipping_minor INTEGER NOT NULL DEFAULT 0,
   total_minor INTEGER NOT NULL DEFAULT 0,

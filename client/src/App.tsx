@@ -12,6 +12,7 @@ import Cart from "./pages/Cart";
 import Catalogue from "./pages/Catalogue";
 import CustomerDiscovery from "./pages/CustomerDiscovery";
 import Home from "./pages/Home";
+import Invoice from "./pages/Invoice";
 import ProductDetail from "./pages/ProductDetail";
 import Track from "./pages/Track";
 import Wishlist from "./pages/Wishlist";
@@ -28,6 +29,7 @@ function AppRoutes() {
       <Route path="/cart" component={Cart} />
       <Route path="/wishlist" component={Wishlist} />
       <Route path="/track" component={Track} />
+      <Route path="/invoice" component={Invoice} />
       <Route path="/discover" component={CustomerDiscovery} />
       <Route path="/discover/:focus" component={CustomerDiscovery} />
       <Route path="/admin" component={Admin} />
