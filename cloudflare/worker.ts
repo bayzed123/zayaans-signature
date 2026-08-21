@@ -13,6 +13,23 @@ export interface Env {
   STEADFAST_SECRET_KEY?: string;
 }
 
+/**
+ * Home courier delivery pricing (in poisha, i.e. minor units of BDT --
+ * matches every other *_minor field in this file). The house's own fixed
+ * rates: ৳90 inside Dhaka, ৳150 for the rest of Bangladesh. Computed here,
+ * server-side, from the customer's declared zone -- never trusted from the
+ * client -- so the order total the house actually collects on delivery
+ * always includes the real delivery charge.
+ */
+const DELIVERY_ZONES = {
+  dhaka: 9000,
+  outside_dhaka: 15000,
+} as const;
+type DeliveryZone = keyof typeof DELIVERY_ZONES;
+function isDeliveryZone(value: unknown): value is DeliveryZone {
+  return value === "dhaka" || value === "outside_dhaka";
+}
+
 type Payload = Record<string, unknown>;
 type ProductRow = {
   id: number;
@@ -590,6 +607,7 @@ async function createOrder(request: Request, env: Env) {
   const customerEmail = clean(body.customerEmail, 254).toLowerCase();
   const address = clean(body.address, 600);
   const note = clean(body.note, 500);
+  const deliveryZone: DeliveryZone = isDeliveryZone(body.deliveryZone) ? body.deliveryZone : "dhaka";
   const items = Array.isArray(body.items) ? body.items.slice(0, 12) : [];
   if (!customerName || customerPhone.length < 10 || !address || !items.length)
     return json(
@@ -664,9 +682,11 @@ async function createOrder(request: Request, env: Env) {
     (sum, item) => sum + item.product.price_minor * item.qty,
     0
   );
+  const shipping = DELIVERY_ZONES[deliveryZone];
+  const total = subtotal + shipping;
   const statements = [
     env.COMMERCE.prepare(
-      "INSERT INTO orders (order_no, customer_name, customer_phone, customer_email, address, note, subtotal_minor, total_minor) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+      "INSERT INTO orders (order_no, customer_name, customer_phone, customer_email, address, note, delivery_zone, subtotal_minor, shipping_minor, total_minor) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
     ).bind(
       orderNo,
       customerName,
@@ -674,8 +694,10 @@ async function createOrder(request: Request, env: Env) {
       customerEmail,
       address,
       note,
+      deliveryZone,
       subtotal,
-      subtotal
+      shipping,
+      total
     ),
   ];
   for (const item of lineItems) {
@@ -720,7 +742,14 @@ async function createOrder(request: Request, env: Env) {
     );
   }
   return json(
-    { orderNo, status: "pending", totalMinor: subtotal },
+    {
+      orderNo,
+      status: "pending",
+      deliveryZone,
+      subtotalMinor: subtotal,
+      shippingMinor: shipping,
+      totalMinor: total,
+    },
     201,
     request,
     env
@@ -739,7 +768,7 @@ async function trackOrder(request: Request, env: Env) {
       env
     );
   const order = await env.COMMERCE.prepare(
-    "SELECT id, order_no, customer_name, status, subtotal_minor, shipping_minor, total_minor, created_at FROM orders WHERE upper(order_no) = ? AND customer_phone = ?"
+    "SELECT id, order_no, customer_name, customer_phone, customer_email, address, status, delivery_zone, subtotal_minor, shipping_minor, total_minor, created_at FROM orders WHERE upper(order_no) = ? AND customer_phone = ?"
   )
     .bind(orderNo, phone)
     .first();
@@ -760,7 +789,11 @@ async function trackOrder(request: Request, env: Env) {
       order: {
         orderNo: order.order_no,
         customerName: order.customer_name,
+        customerPhone: order.customer_phone,
+        customerEmail: order.customer_email,
+        address: order.address,
         status: order.status,
+        deliveryZone: order.delivery_zone,
         subtotalMinor: order.subtotal_minor,
         shippingMinor: order.shipping_minor,
         totalMinor: order.total_minor,

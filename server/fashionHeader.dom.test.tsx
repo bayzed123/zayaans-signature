@@ -7,6 +7,7 @@ import FashionHeader from "../client/src/components/FashionHeader";
 import { CUSTOMER_DISCOVERY_LINKS } from "../client/src/lib/customerDiscovery";
 
 vi.mock("@/contexts/CartContext", () => ({ useCart: () => ({ count: 0 }) }));
+vi.mock("@/contexts/WishlistContext", () => ({ useWishlist: () => ({ count: 0 }) }));
 
 afterEach(() => {
   cleanup();

@@ -7,7 +7,7 @@ const readClientFile = (relativePath: string) => readFileSync(new URL(relativePa
 
 describe("customer discovery navigation", () => {
   it("publishes a truthful customer route for every requested discovery destination", () => {
-    expect(CUSTOMER_DISCOVERY_LINKS.map((link) => link.key)).toEqual(["offers", "new-arrivals", "best-sellers", "wishlist", "account", "contact"]);
+    expect(CUSTOMER_DISCOVERY_LINKS.map((link) => link.key)).toEqual(["offers", "new-arrivals", "best-sellers", "account", "contact"]);
     for (const link of CUSTOMER_DISCOVERY_LINKS) {
       expect(link.href).toBe(`/discover/${link.key}`);
       expect(DISCOVERY_PAGES[link.key].description.length).toBeGreaterThan(40);

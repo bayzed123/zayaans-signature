@@ -42,9 +42,12 @@ describe("storefront product imagery", () => {
     ).toBe("https://example.com/owner-piece.jpg");
   });
 
-  it("uses a project-owned catalogue image fallback only when product imagery is absent", () => {
-    expect(productImage(baseProduct)).toMatch(
-      /^\/images\/catalogue\/[a-z-]+\.jpg$/
-    );
+  it("uses a generated, brand-styled placeholder tile -- never a random stock photo -- when product imagery is absent", () => {
+    // A prior version of this fallback rotated through a fixed set of stock
+    // photos keyed by product id, one of which (on inspection) was actually
+    // a photo of a Louis Vuitton handbag mislabelled as storefront imagery.
+    // The fallback is now generated per-product instead, so it can never
+    // show an unrelated, mismatched, or trademarked photo.
+    expect(productImage(baseProduct)).toMatch(/^data:image\/svg\+xml/);
   });
 });

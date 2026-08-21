@@ -1,7 +1,8 @@
 import FashionHeader from "@/components/FashionHeader";
-import { SiteLink, sitePath } from "@/components/SiteLink";
+import { SiteLink } from "@/components/SiteLink";
 import TryOnModal from "@/components/TryOnModal";
 import { useCart } from "@/contexts/CartContext";
+import { useWishlist } from "@/contexts/WishlistContext";
 import {
   commerceRequest,
   formatBdt,
@@ -15,6 +16,7 @@ import {
   Check,
   ChevronRight,
   Copy,
+  Heart,
   Loader2,
   MessageCircle,
   Share2,
@@ -58,6 +60,7 @@ export default function ProductDetail() {
   const [colour, setColour] = useState("");
   const [tryOnOpen, setTryOnOpen] = useState(false);
   const { add } = useCart();
+  const { has, toggle } = useWishlist();
 
   useEffect(() => {
     let alive = true;
@@ -102,6 +105,7 @@ export default function ProductDetail() {
   if (!product || error) return <UnavailableProduct error={error} />;
 
   const soldOut = product.stock < 1;
+  const saved = has(product.id);
   const availability =
     product.availabilityNote ||
     (soldOut
@@ -119,7 +123,10 @@ export default function ProductDetail() {
   const shopNow = () => {
     if (soldOut) return;
     add(product, { size, colour });
-    navigate(sitePath("/cart"));
+    // `navigate` (from wouter's useLocation) already applies the router's
+    // base itself -- wrapping this in sitePath() double-prefixed it on the
+    // GitHub Pages build and 404'd. See SiteLink.tsx for the full story.
+    navigate("/cart");
   };
   const tryOnMessage = encodeURIComponent(
     `Hello Zayaan's Signature, I would like an online try-on or size consultation for ${product.name} (${product.sku}).`
@@ -200,6 +207,18 @@ export default function ProductDetail() {
                   {soldOut ? "Unavailable" : "Shop now"}
                 </button>
               </div>
+              <button
+                type="button"
+                onClick={() => {
+                  toggle(product);
+                  toast(saved ? `${product.name} removed from your wishlist.` : `${product.name} saved to your wishlist.`);
+                }}
+                aria-pressed={saved}
+                className={`mt-3 inline-flex w-full items-center justify-center gap-2 border px-5 py-3 font-ui text-[10px] font-bold uppercase tracking-[.18em] transition-colors ${saved ? "border-[#8f6b2c] text-[#8f6b2c]" : "border-black/20 text-black/65 hover:border-[#8f6b2c] hover:text-[#8f6b2c]"}`}
+              >
+                <Heart size={15} fill={saved ? "currentColor" : "none"} />{" "}
+                {saved ? "Saved to wishlist" : "Save to wishlist"}
+              </button>
               {soldOut && (
                 <p
                   role="status"
