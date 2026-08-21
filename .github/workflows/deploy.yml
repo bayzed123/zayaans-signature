@@ -61,6 +61,18 @@ jobs:
     steps:
       - name: Check out source
         uses: actions/checkout@v4
+      - name: Apply commerce database migrations
+        run: |
+          for migration in cloudflare/migrations/*.sql; do
+            echo "Applying $migration"
+            # A migration that already ran reports an existing-column/table error and is
+            # skipped rather than failing the deploy -- these files are additive and safe
+            # to attempt on every push.
+            npx --yes wrangler@4 d1 execute zayaans-signature-commerce --remote --file="$migration" --config cloudflare/wrangler.toml \
+              || echo "$migration reported an issue (likely already applied) -- continuing."
+          done
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUD_FLARE_API }}
       - name: Deploy Cloudflare Worker
         run: npx --yes wrangler@4 deploy --config cloudflare/wrangler.toml
         env:

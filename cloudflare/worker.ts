@@ -775,6 +775,42 @@ async function trackOrder(request: Request, env: Env) {
   );
 }
 
+/**
+ * Stores a virtual try-on interest lead. The customer's photo is composited
+ * entirely in their own browser (see client/src/lib/tryOn.ts) and is never
+ * included in this request -- only the contact details they choose to leave.
+ */
+async function createTryonLead(request: Request, env: Env) {
+  const body = await readPayload(request);
+  if (!body)
+    return json({ error: "Invalid contact payload" }, 400, request, env);
+  const customerName = clean(body.customerName, 120);
+  const customerPhone = phoneDigits(clean(body.customerPhone, 30));
+  const customerEmail = clean(body.customerEmail, 254).toLowerCase();
+  const note = clean(body.note, 500);
+  const productId = Number(body.productId);
+  const productName = clean(body.productName, 160);
+  const productSlug = clean(body.productSlug, 160);
+  if (!customerName || customerPhone.length < 10)
+    return json({ error: "Name and phone are required" }, 422, request, env);
+  if (customerEmail && !validEmail(customerEmail))
+    return json({ error: "Enter a valid email address" }, 422, request, env);
+  await env.COMMERCE.prepare(
+    "INSERT INTO tryon_leads (customer_name, customer_phone, customer_email, product_id, product_name, product_slug, note) VALUES (?, ?, ?, ?, ?, ?, ?)"
+  )
+    .bind(
+      customerName,
+      customerPhone,
+      customerEmail,
+      Number.isInteger(productId) && productId > 0 ? productId : null,
+      productName,
+      productSlug,
+      note
+    )
+    .run();
+  return json({ success: true }, 201, request, env);
+}
+
 async function adminRoute(
   request: Request,
   env: Env,
@@ -1298,6 +1334,12 @@ async function adminRoute(
     ).all();
     return json({ orders: results ?? [] }, 200, request, env);
   }
+  if (url.pathname === "/api/admin/tryon-leads" && request.method === "GET") {
+    const { results } = await env.COMMERCE.prepare(
+      "SELECT id, customer_name, customer_phone, customer_email, product_id, product_name, product_slug, note, created_at FROM tryon_leads ORDER BY id DESC LIMIT 200"
+    ).all();
+    return json({ leads: results ?? [] }, 200, request, env);
+  }
   const orderTimelineMatch = url.pathname.match(
     /^\/api\/admin\/orders\/(\d+)\/timeline$/
   );
@@ -1589,6 +1631,8 @@ export default {
       return createOrder(request, env);
     if (url.pathname === "/api/orders/track" && request.method === "GET")
       return trackOrder(request, env);
+    if (url.pathname === "/api/tryon-leads" && request.method === "POST")
+      return createTryonLead(request, env);
     if (url.pathname.startsWith("/api/admin"))
       return adminRoute(request, env, url);
     return json({ error: "Not found" }, 404, request, env);

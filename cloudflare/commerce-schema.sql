@@ -114,3 +114,22 @@ CREATE TABLE IF NOT EXISTS order_events (
 );
 
 CREATE INDEX IF NOT EXISTS idx_order_events_order ON order_events(order_id, id);
+
+-- Virtual try-on interest leads. The customer's photo is never sent to or
+-- stored by the backend -- it stays entirely in their own browser (see the
+-- client-side try-on tool). Only the contact details they choose to leave are
+-- stored here, so the atelier can follow up on a fitting.
+CREATE TABLE IF NOT EXISTS tryon_leads (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  customer_name TEXT NOT NULL,
+  customer_phone TEXT NOT NULL,
+  customer_email TEXT NOT NULL DEFAULT '',
+  product_id INTEGER REFERENCES products(id) ON DELETE SET NULL,
+  product_name TEXT NOT NULL DEFAULT '',
+  product_slug TEXT NOT NULL DEFAULT '',
+  note TEXT NOT NULL DEFAULT '',
+  created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_tryon_leads_created ON tryon_leads(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_tryon_leads_product ON tryon_leads(product_id);
