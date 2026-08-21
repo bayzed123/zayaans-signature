@@ -1,5 +1,4 @@
-import { categoryImageForSlug } from "@/lib/categoryAssets";
-import { STOREFRONT_ASSETS } from "@/lib/storefrontAssets";
+import { categoryImageForSlug, placeholderTile } from "@/lib/categoryAssets";
 
 export const API_BASE = (import.meta.env.VITE_API_BASE_URL || "https://zayaans-signature-api.mahmudajenny6.workers.dev").replace(/\/$/, "");
 
@@ -80,5 +79,5 @@ export async function commerceRequest<T>(path: string, init?: RequestInit): Prom
 export function productImage(product: Product): string {
   if (product.imageUrl || product.gallery[0]) return product.imageUrl || product.gallery[0];
   if (product.categorySlug) return categoryImageForSlug(product.categorySlug);
-  return STOREFRONT_ASSETS.productFallbacks[Math.abs(product.id) % STOREFRONT_ASSETS.productFallbacks.length];
+  return placeholderTile(product.name);
 }

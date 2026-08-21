@@ -4,13 +4,15 @@ import { useCart } from "@/contexts/CartContext";
 import { commerceRequest, formatBdt } from "@/lib/commerce";
 import { ArrowRight, Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
 import { FormEvent, useState } from "react";
-import { SiteLink as Link, sitePath } from "@/components/SiteLink";
+import { SiteLink as Link } from "@/components/SiteLink";
 import { toast } from "sonner";
+import { useLocation } from "wouter";
 
 type OrderResult = { orderNo: string; status: string; totalMinor: number };
 
 export default function Cart() {
   const { items, subtotalMinor, updateQuantity, remove, clear } = useCart();
+  const [, navigate] = useLocation();
   const [submitting, setSubmitting] = useState(false);
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
@@ -25,7 +27,7 @@ export default function Cart() {
     try {
       const order = await commerceRequest<OrderResult>("/api/orders", { method: "POST", body: JSON.stringify({ customerName, customerPhone, customerEmail, address, note, items: items.map((item) => ({ productId: item.product.id, qty: item.quantity, size: item.size, colour: item.colour })) }) });
       clear();
-      window.location.assign(sitePath(`/track?orderNo=${encodeURIComponent(order.orderNo)}&phone=${encodeURIComponent(customerPhone)}`));
+      navigate(`/track?orderNo=${encodeURIComponent(order.orderNo)}&phone=${encodeURIComponent(customerPhone)}`);
       toast("Your order request has been received.", { description: `Order ${order.orderNo} is now pending confirmation.` });
     } catch (reason) { toast("We could not place your order.", { description: reason instanceof Error ? reason.message : "Please try again." }); }
     finally { setSubmitting(false); }
