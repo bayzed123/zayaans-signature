@@ -170,6 +170,10 @@
 - [x] Task 12c — Build responsive private overview cards, charts, and summary tables using only returned business metrics.
 - [x] Task 12d — Add focused Worker and rendered-admin regression coverage, then verify desktop and mobile business-overview workflows before publishing.
 - [ ] Task 13 — Add an administrator courier-management and delivery-tracking workspace around the completed Steadfast integration, including courier references and delivery state visibility.
+- [x] Task 13a — Audit the current private courier controls, protected Steadfast routes, operational order states, and the known provider account-activation constraint.
+- [ ] Task 13b — Add protected courier workspace reporting for dispatch readiness, consignment references, current delivery states, and exception queues without exposing customer data publicly.
+- [ ] Task 13c — Build a responsive private courier-management workspace that reuses existing dispatch and refresh controls without creating a live shipment automatically.
+- [ ] Task 13d — Add focused Worker and rendered-admin regression coverage, then verify desktop and mobile courier-management workflows before publishing.
 - [ ] Task 14 — Add an authenticated customer account area for profile, saved addresses, legitimate order history, delivery tracking, and wishlist management.
 - [ ] Task 15 — Add a secure, opt-in customer notification foundation for order-stage updates; defer third-party SMS, email, or WhatsApp delivery until service credentials and sending policy are confirmed.
 - [ ] Task 16 — Build promotional administration for discounts, coupons, flash sales, offer placement, and homepage promotional content with validation and expiry controls.

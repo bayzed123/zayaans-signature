@@ -379,6 +379,15 @@ async function adminRoute(request: Request, env: Env, url: URL): Promise<Respons
       deliveryStates: delivery.results ?? [], dailySales: [...(dailySales.results ?? [])].reverse(), topProducts: topProducts.results ?? [],
     }, 200, request, env);
   }
+  if (url.pathname === "/api/admin/courier-workspace" && request.method === "GET") {
+    const [ready, active, exceptions, states] = await env.COMMERCE.batch([
+      env.COMMERCE.prepare("SELECT id, order_no, customer_name, customer_phone, status, total_minor, courier_consignment_id, courier_tracking_code, courier_status, created_at FROM orders WHERE status IN ('confirmed','preparing','courier','shipped') AND (courier_consignment_id IS NULL OR courier_tracking_code IS NULL) ORDER BY id DESC LIMIT 50"),
+      env.COMMERCE.prepare("SELECT id, order_no, customer_name, customer_phone, status, total_minor, courier_consignment_id, courier_tracking_code, courier_status, created_at FROM orders WHERE courier_consignment_id IS NOT NULL OR courier_tracking_code IS NOT NULL ORDER BY id DESC LIMIT 100"),
+      env.COMMERCE.prepare("SELECT id, order_no, customer_name, customer_phone, status, total_minor, courier_consignment_id, courier_tracking_code, courier_status, created_at FROM orders WHERE status IN ('failed_delivery','returned','cancelled') ORDER BY id DESC LIMIT 50"),
+      env.COMMERCE.prepare("SELECT COALESCE(courier_status, 'not_dispatched') AS status, COUNT(*) AS count FROM orders GROUP BY COALESCE(courier_status, 'not_dispatched') ORDER BY count DESC, status"),
+    ]);
+    return json({ dispatchReady: ready.results ?? [], activeConsignments: active.results ?? [], exceptions: exceptions.results ?? [], statusCounts: states.results ?? [], provider: { name: "Steadfast Courier", liveDispatchReady: false, note: "Live dispatch remains blocked until the Steadfast account is activated." } }, 200, request, env);
+  }
   if (url.pathname === "/api/admin/categories" && request.method === "GET") return json({ categories: await categories(env, true) }, 200, request, env);
   if (url.pathname === "/api/admin/categories" && request.method === "POST") {
     const body = await readPayload(request); if (!body) return json({ error: "Invalid category payload" }, 400, request, env);

@@ -13,7 +13,8 @@ type AdminOrder = {
   courier_consignment_id?: string | null; courier_tracking_code?: string | null; courier_status?: string | null;
 };
 type OrderTimelineEvent = { id: number; status: string; note?: string | null; created_at: string };
-type Tab = "overview" | "products" | "inventory" | "categories" | "orders";
+type Tab = "overview" | "products" | "inventory" | "categories" | "orders" | "courier";
+type CourierWorkspace = { dispatchReady: AdminOrder[]; activeConsignments: AdminOrder[]; exceptions: AdminOrder[]; statusCounts: Array<{ status: string; count: number }>; provider: { name: string; liveDispatchReady: boolean; note: string } };
 type InventoryRow = { id: number; name: string; sku: string; stock: number; low_stock_threshold: number; status: string; sold_qty: number };
 type InventoryAdjustment = { id: number; product_id: number; product_name: string; previous_stock: number; quantity_delta: number; resulting_stock: number; reason: string; note: string; created_at: string };
 type CategoryEditorValues = Pick<Category, "name" | "description" | "imageUrl" | "sortOrder" | "parentLabel" | "audience" | "status">;
@@ -46,6 +47,7 @@ export default function Admin() {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [orders, setOrders] = useState<AdminOrder[]>([]);
+  const [courierWorkspace, setCourierWorkspace] = useState<CourierWorkspace | null>(null);
   const [inventory, setInventory] = useState<InventoryRow[]>([]);
   const [adjustments, setAdjustments] = useState<InventoryAdjustment[]>([]);
   const [inventoryAction, setInventoryAction] = useState<string | null>(null);
@@ -63,15 +65,16 @@ export default function Admin() {
     if (!activeToken) return;
     setLoading(true);
     try {
-      const [nextOverview, nextBusinessOverview, nextProducts, nextCategories, nextOrders, nextInventory] = await Promise.all([
+      const [nextOverview, nextBusinessOverview, nextProducts, nextCategories, nextOrders, nextInventory, nextCourierWorkspace] = await Promise.all([
         adminRequest<Overview>("/api/admin/overview", activeToken),
         adminRequest<BusinessOverview>("/api/admin/business-overview", activeToken),
         adminRequest<{ products: Product[] }>("/api/admin/products", activeToken),
         adminRequest<{ categories: Category[] }>("/api/admin/categories", activeToken),
         adminRequest<{ orders: AdminOrder[] }>("/api/admin/orders", activeToken),
         adminRequest<{ inventory: InventoryRow[]; adjustments: InventoryAdjustment[] }>("/api/admin/inventory", activeToken),
+        adminRequest<CourierWorkspace>("/api/admin/courier-workspace", activeToken),
       ]);
-      setOverview(nextOverview); setBusinessOverview(nextBusinessOverview); setProducts(nextProducts.products); setCategories(nextCategories.categories); setOrders(nextOrders.orders); setInventory(nextInventory.inventory); setAdjustments(nextInventory.adjustments);
+      setOverview(nextOverview); setBusinessOverview(nextBusinessOverview); setProducts(nextProducts.products); setCategories(nextCategories.categories); setOrders(nextOrders.orders); setInventory(nextInventory.inventory); setAdjustments(nextInventory.adjustments); setCourierWorkspace(nextCourierWorkspace);
     } catch (error) {
       sessionStorage.removeItem(TOKEN_KEY); setToken("");
       toast("Administrator session ended.", { description: error instanceof Error ? error.message : "Please sign in again." });
@@ -184,7 +187,7 @@ export default function Admin() {
   if (!token) return <AdminLogin username={username} password={password} setUsername={setUsername} setPassword={setPassword} loading={loading} onSubmit={login} />;
   const tabs: Array<{ id: Tab; label: string; icon: typeof BarChart3 }> = [
     { id: "overview", label: "Overview", icon: BarChart3 }, { id: "products", label: "Products", icon: Boxes }, { id: "inventory", label: "Inventory", icon: ClipboardList },
-    { id: "categories", label: "Categories", icon: Tags }, { id: "orders", label: "Orders", icon: ClipboardList },
+    { id: "categories", label: "Categories", icon: Tags }, { id: "orders", label: "Orders", icon: ClipboardList }, { id: "courier", label: "Courier", icon: Truck },
   ];
   const activeTab = tabs.find((item) => item.id === tab);
   const selectTab = (nextTab: Tab) => { setTab(nextTab); setMobileMenuOpen(false); if (nextTab !== "products") setProductEditorOpen(false); };
@@ -204,6 +207,7 @@ export default function Admin() {
       {tab === "inventory" && <InventoryPanel inventory={inventory} adjustments={adjustments} adjust={adjustInventory} action={inventoryAction} />}
       {tab === "categories" && <CategoryPanel categories={categories} create={createCategory} save={saveCategory} remove={deleteCategory} action={categoryAction} />}
       {tab === "orders" && <OrderPanel orders={orders} token={token} updateOrder={updateOrder} createCourierConsignment={createCourierConsignment} refreshCourierStatus={refreshCourierStatus} courierAction={courierAction} />}
+      {tab === "courier" && <CourierWorkspacePanel workspace={courierWorkspace} createCourierConsignment={createCourierConsignment} refreshCourierStatus={refreshCourierStatus} courierAction={courierAction} />}
     </main>
   </div>{mobileMenuOpen && <MobileAdminDrawer tabs={tabs} activeTab={tab} selectTab={selectTab} onClose={() => setMobileMenuOpen(false)} openProductEditor={() => { setMobileMenuOpen(false); openProductEditor(); }} />}</div>;
 }
@@ -275,6 +279,12 @@ function CourierControls({ order, createCourierConsignment, refreshCourierStatus
 export function OrderPanel({ orders, token, updateOrder, createCourierConsignment, refreshCourierStatus, courierAction }: { orders: AdminOrder[]; token: string; updateOrder: (id: number, status: string) => void; createCourierConsignment: (id: number) => void; refreshCourierStatus: (id: number) => void; courierAction: string | null }) {
   const courierProps = { createCourierConsignment, refreshCourierStatus, courierAction };
   return <section className="mt-8 overflow-hidden border border-black/12 bg-[#f8f4ed]"><div className="border-b border-black/12 px-5 py-5 sm:px-7"><p className="font-ui text-[9px] font-bold uppercase tracking-[.19em] text-[#8f6b2c]">Order fulfilment</p><h2 className="mt-2 font-display text-4xl">Orders &amp; courier</h2><p className="mt-2 max-w-2xl font-ui text-xs leading-5 text-black/55">Create a Steadfast consignment only after you have reviewed the customer&apos;s order. Tracking references, status transitions, and delivery history stay private in this dashboard.</p></div><div className="divide-y divide-black/10 md:hidden">{orders.map((order) => <article key={order.id} className="p-5"><div className="flex items-start justify-between gap-3"><div><p className="font-ui text-[9px] font-bold uppercase tracking-[.13em] text-[#8f6b2c]">{order.order_no}</p><p className="mt-2 font-display text-2xl leading-none">{order.customer_name}</p><p className="mt-2 font-ui text-xs text-black/52">{order.customer_phone} · {formatBdt(order.total_minor)}</p></div><select aria-label={`Order status for ${order.order_no}`} value={order.status} onChange={(event) => updateOrder(order.id, event.target.value)} className="min-h-10 border border-black/15 bg-transparent px-2 py-1.5 text-xs capitalize outline-none focus:border-[#8f6b2c]">{orderStatuses.map((status) => <option key={status}>{status}</option>)}</select></div><div className="mt-4"><CourierControls order={order} {...courierProps} /></div><OrderTimeline order={order} token={token} /></article>)}{!orders.length && <p className="px-5 py-12 text-center font-ui text-sm text-black/52">No customer orders have been placed yet.</p>}</div><div className="hidden overflow-x-auto md:block"><table className="min-w-[940px] w-full text-left"><thead className="border-b border-black/12 bg-[#e8e0d3] font-ui text-[10px] font-bold uppercase tracking-[.15em] text-black/55"><tr><th className="px-5 py-4">Order</th><th className="px-5 py-4">Customer</th><th className="px-5 py-4">Total</th><th className="px-5 py-4">Order status</th><th className="px-5 py-4">Steadfast courier</th></tr></thead><tbody className="font-ui text-sm">{orders.map((order) => <tr key={order.id} className="border-b border-black/8 align-top"><td className="px-5 py-5 font-bold">{order.order_no}<OrderTimeline order={order} token={token} /></td><td className="px-5 py-5"><span className="block">{order.customer_name}</span><span className="text-xs text-black/45">{order.customer_phone}</span></td><td className="px-5 py-5">{formatBdt(order.total_minor)}</td><td className="px-5 py-5"><select aria-label={`Order status for ${order.order_no}`} value={order.status} onChange={(event) => updateOrder(order.id, event.target.value)} className="min-h-10 border border-black/15 bg-transparent px-2 py-1.5 text-xs capitalize outline-none focus:border-[#8f6b2c]">{orderStatuses.map((status) => <option key={status}>{status}</option>)}</select></td><td className="px-5 py-5"><CourierControls order={order} {...courierProps} /></td></tr>)}{!orders.length && <tr><td colSpan={5} className="px-5 py-12 text-center text-black/52">No customer orders have been placed yet.</td></tr>}</tbody></table></div></section>;
+}
+
+export function CourierWorkspacePanel({ workspace, createCourierConsignment, refreshCourierStatus, courierAction }: { workspace: CourierWorkspace | null; createCourierConsignment: (id: number) => void; refreshCourierStatus: (id: number) => void; courierAction: string | null }) {
+  const courierProps = { createCourierConsignment, refreshCourierStatus, courierAction };
+  const queues = [{ title: "Dispatch readiness", orders: workspace?.dispatchReady ?? [] }, { title: "Active consignments", orders: workspace?.activeConsignments ?? [] }, { title: "Delivery exceptions", orders: workspace?.exceptions ?? [] }];
+  return <section className="mt-8 space-y-5"><div className="border border-[#8f6b2c]/35 bg-[#171512] p-6 text-white sm:p-8"><p className="font-ui text-[9px] font-bold uppercase tracking-[.19em] text-[--gold]">Courier operations</p><h2 className="mt-2 font-display text-4xl">Steadfast workspace</h2><p className="mt-3 max-w-3xl font-ui text-sm leading-6 text-white/60">{workspace?.provider.note || "Loading protected courier status…"}</p><div className="mt-6 flex flex-wrap gap-2">{workspace?.statusCounts.map((item) => <span key={item.status} className="border border-white/15 px-3 py-2 font-ui text-[9px] font-bold uppercase tracking-[.12em] text-white/75">{item.status.replace(/_/g, " ")}: {item.count}</span>)}</div></div>{queues.map((queue) => <article key={queue.title} className="border border-black/12 bg-[#f8f4ed] p-5 sm:p-7"><p className="font-ui text-[9px] font-bold uppercase tracking-[.15em] text-[#8f6b2c]">Private queue</p><h3 className="mt-2 font-display text-3xl">{queue.title}</h3><div className="mt-5 divide-y divide-black/10">{queue.orders.map((order) => <div key={order.id} className="grid gap-4 py-4 lg:grid-cols-[1fr_auto]"><div><p className="font-ui text-xs font-bold">{order.order_no} <span className="font-normal text-black/48">· {order.customer_name}</span></p><p className="mt-1 font-ui text-[9px] uppercase tracking-[.1em] text-black/48">{order.status.replace(/_/g, " ")} · {order.courier_tracking_code ? `Tracking ${order.courier_tracking_code}` : "No consignment reference"}</p></div><CourierControls order={order} {...courierProps} /></div>)}{!queue.orders.length && <p className="py-5 font-ui text-sm text-black/52">No orders currently require attention in this queue.</p>}</div></article>)}</section>;
 }
 
 function OrderTimeline({ order, token }: { order: AdminOrder; token: string }) {
