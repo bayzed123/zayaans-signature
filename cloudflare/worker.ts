@@ -361,6 +361,24 @@ async function adminRoute(request: Request, env: Env, url: URL): Promise<Respons
     ]);
     return json({ productCount: products.results?.[0]?.count ?? 0, openOrders: orders.results?.[0]?.count ?? 0, lowStock: lowStock.results?.[0]?.count ?? 0 }, 200, request, env);
   }
+  if (url.pathname === "/api/admin/business-overview" && request.method === "GET") {
+    const [sales, allOrders, customers, inventory, delivery, dailySales, topProducts] = await env.COMMERCE.batch([
+      env.COMMERCE.prepare("SELECT COALESCE(SUM(total_minor), 0) AS total_minor, COUNT(*) AS count FROM orders WHERE status NOT IN ('cancelled','refunded')"),
+      env.COMMERCE.prepare("SELECT COUNT(*) AS count FROM orders"),
+      env.COMMERCE.prepare("SELECT COUNT(DISTINCT customer_phone) AS count FROM orders"),
+      env.COMMERCE.prepare("SELECT COUNT(*) AS active_products, COALESCE(SUM(stock), 0) AS units_on_hand, SUM(CASE WHEN stock <= low_stock_threshold THEN 1 ELSE 0 END) AS low_stock FROM products WHERE status = 'active'"),
+      env.COMMERCE.prepare("SELECT status, COUNT(*) AS count FROM orders GROUP BY status ORDER BY count DESC, status"),
+      env.COMMERCE.prepare("SELECT substr(created_at, 1, 10) AS day, COALESCE(SUM(total_minor), 0) AS total_minor, COUNT(*) AS order_count FROM orders WHERE status NOT IN ('cancelled','refunded') GROUP BY substr(created_at, 1, 10) ORDER BY day DESC LIMIT 7"),
+      env.COMMERCE.prepare("SELECT oi.product_id, MAX(oi.name) AS name, SUM(oi.qty) AS units_sold, COALESCE(SUM(oi.line_total_minor), 0) AS sales_minor FROM order_items oi JOIN orders o ON o.id = oi.order_id WHERE o.status NOT IN ('cancelled','refunded') GROUP BY oi.product_id ORDER BY units_sold DESC, sales_minor DESC LIMIT 5"),
+    ]);
+    return json({
+      sales: { totalMinor: sales.results?.[0]?.total_minor ?? 0, orderCount: sales.results?.[0]?.count ?? 0 },
+      orderCount: allOrders.results?.[0]?.count ?? 0,
+      customerCount: customers.results?.[0]?.count ?? 0,
+      inventory: inventory.results?.[0] ?? { active_products: 0, units_on_hand: 0, low_stock: 0 },
+      deliveryStates: delivery.results ?? [], dailySales: [...(dailySales.results ?? [])].reverse(), topProducts: topProducts.results ?? [],
+    }, 200, request, env);
+  }
   if (url.pathname === "/api/admin/categories" && request.method === "GET") return json({ categories: await categories(env, true) }, 200, request, env);
   if (url.pathname === "/api/admin/categories" && request.method === "POST") {
     const body = await readPayload(request); if (!body) return json({ error: "Invalid category payload" }, 400, request, env);
